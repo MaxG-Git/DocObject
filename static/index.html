@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+    <script src="docobject.js"></script>
+</head>
+<body>
+    <h2 id="hello"></h2>
+    <h3 id="count"></h3>
+    <div id="buttonDiv"><button id="button" >Count</button>`</div>
+    
+</body>
+
+
+<script>
+    var doc = new DocObject({
+        values: {
+            message: 'Hello World',
+            count: 1
+        },
+        elements: {
+        
+        },
+        render: [
+            {
+                action: () => {
+                    doc.elements.hello.text(doc.values.message)
+                    doc.elements.button.on('click', addCount)
+                },
+                dep:[]
+            },
+            {
+                clean: ()=>{
+                    doc.elements.button.unbind('click')
+                },
+                action: () => {
+                    doc.elements.count.text(doc.values.count)
+                    doc.elements.button.on('click', addCount)
+                },
+                dep: ['count']
+            },
+
+        ]
+    })
+    $(doc.onLoad)
+
+
+    function addCount() {
+        doc.values.count += 1
+    }
+</script>
+</html>

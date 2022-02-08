@@ -1,0 +1,15 @@
+{
+  "name": "DocObject",
+  "version": "1.0.0",
+  "description": "Document Object for easy page updated with JQuery",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Max Grossman",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1"
+  }
+}
