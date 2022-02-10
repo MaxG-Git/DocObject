@@ -1,11 +1,14 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const examples = require('./examples')
+const src = require('./src')
 
-app.use(express.static(__dirname + '/static'));
-app.use(express.static(__dirname + '/assets'));
+
 app.use(express.json());
+app.use('/examples', examples)
+app.use('/src', src)
 
 
 //Accept Client Request
