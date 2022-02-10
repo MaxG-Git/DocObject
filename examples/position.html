@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+
+    <script src="/src/DocObject.js"></script>
+
+    <style>
+
+        html,
+        body{
+            height: 100%;
+            width:  100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body{
+            position: relative;
+        }
+        #parent,
+        #child{
+            position: absolute;
+        }
+
+        #parent{
+            height: 80%;
+            width: 80%;
+            display: flex;
+            background-color: aqua;
+        }
+
+        #child{
+            width: 500px;
+            height: 500px;
+            background-color: antiquewhite;
+            top: 10px;
+            left: 20px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div id="parent" onresize="handleResize(this)">
+        <div style="display: none;" id="child">
+            <h2 id="size">Hello</h2>
+        </div>
+    </div>
+    
+</body>
+
+
+<script>
+    var doc = new DocObject({
+        values: {
+            message: 'Hello World',
+            pos:{
+                x:30,
+                y:30
+            }
+        },
+        elements: {
+        
+        },
+        render: [
+            {
+                action: () => {
+                    doc.values.pos.x = doc.elements.parent[0].clientWidth
+                    doc.values.pos.y = doc.elements.parent[0].clientHeight
+                    doc.elements.child.css('display', 'block')
+                },
+                dep:[]
+            },
+            {
+                action: ({pos : {x, y}}) => {
+                    doc.elements.child.css('left', ((x/2) - 250) + 'px')
+                    doc.elements.child.css('top', ((y/2) - 250) + 'px')
+                },
+                dep:['pos', true]
+            },
+        ]
+    })
+    $(doc.onLoad)
+
+    $(window).on('resize', ()=>{
+        //doc.values.x = doc.elements.parent[0].clientWidth
+        doc.values.pos = {
+            ...doc.values.pos, 
+            x:doc.elements.parent[0].clientWidth, 
+            y:doc.elements.parent[0].clientHeight
+        }
+    })
+
+    
+</script>
+</html>

@@ -15,9 +15,18 @@ class DocElements {
 
 
 class DocObject {
-    values;
+    _values = {};
+    _updating
+    _cached
     elements;
     render = [];
+
+    set values(values){
+        throw Error("Tried to set DocObject.value. Try setting a inner object instead.")
+    }
+    get values(){
+        return this._values;
+    }
     constructor({elements, values, render}){
         this.elements = new DocElements()
         if(elements){
@@ -28,37 +37,30 @@ class DocObject {
         }else{
             render = [];
         }
-        this.values = new Proxy(!values || typeof values !== 'object' ? {} : values, {
+        this._values = new Proxy(!values || typeof values !== 'object' ? {} : values, {
             set: (target, prop, value, receiver) => {
-                this.render.forEach(ren => {
-                    if(ren.dep && Array.isArray(ren.dep)){
-                        if(ren.dep.includes(prop)){
-                            if(ren.clean) ren.clean({...this.values, [prop]:value}, this.values)
-                            ren.action({...this.values, [prop]:value}, this.values)
-                        }
-                    }else{
+                    this.render.filter(ren => ( ren.dep && Array.isArray(ren.dep) && ren.dep.includes(prop)) || (ren.dep === undefined)).forEach(ren => {
                         if(ren.clean) ren.clean({...this.values, [prop]:value}, this.values)
                         ren.action({...this.values, [prop]:value}, this.values)
-                    }
-                })
+                    })
                 target[prop] = value;
             }
         })
         this.onLoad = ()=>{
             this.render.forEach(ren => {
-                if(ren.dep && Array.isArray(ren.dep) && ren.dep.length === 0){
+                if(ren.dep && Array.isArray(ren.dep) && (ren.dep.length === 0 || ren.dep.includes(true))){
                     ren.action(this.values, this.values)
                 }
             })
         }
     }
-    runRender(ren){
-        if(ren.dep && Array.isArray(ren.dep)){
-            if(ren.dep.includes(prop)){
+    runRender(...deps){
+        deps.forEach(prop=>{
+            this.render.filter(ren => ( ren.dep && Array.isArray(ren.dep) && ren.dep.includes(prop)) || (ren.dep === undefined)).forEach(ren => {
+                if(ren.clean) ren.clean({...this.values, [prop]:value}, this.values)
                 ren.action({...this.values, [prop]:value}, this.values)
-            }
-        }else{
-            ren.action({...this.values, [prop]:value}, this.values)
-        }
+            })
+        })
+        
     }
 }
