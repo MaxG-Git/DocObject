@@ -61,21 +61,21 @@
 <script>
     var doc = new DocObject({
         values: {
-            message: 'Hello World',
+            message: 'I am positioned by binds',
             pos:{
                 x:null,
                 y:null
             }
         },
         binds:{
-            hello:({message})=>/*html*/`<span>${message}</span>`,
             child:({pos : {x, y}})=>
             x !== null ?
             /*html*/`
             <div id="child" style="left:${((x/2) - 250)}px; top:${((y/2) - 250)}px;">
-                <h2 id="size" d-bind="hello">I am positioned by binds</h2>
+                <h2 d-bind="hello"></h2>
             </div>
             ` : '',
+            hello:({message})=>/*html*/`<span>${message}</span>`,
             
         },
         render: [
