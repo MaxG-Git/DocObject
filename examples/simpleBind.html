@@ -28,7 +28,8 @@
             message:'Hello'
         },
         binds:{
-            msg: ({message})=>`<h3>${message}</h3>`
+            msg: ()=>/*HTML*/`<div><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
+            inner: ({message})=>/*HTML*/`<span>${message}</span>`
         },
     }); $(doc.onLoad)
 
