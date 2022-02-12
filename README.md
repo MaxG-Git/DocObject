@@ -51,7 +51,7 @@ var docObj = $(rootElement).DocObject({
 To get a better idea of the options passed in lets look at each individual option.
 
 ### Elements
-The elements option allows you to assign keys to specific jQuery selectors to be re-used within the page. The elements object will correspond the the created DocObjects's `.element` property. The main difference between using the `.elements` property rather than the default jQuery selector function is to reselect for possible changes when an update is made to the root element. This means that the `.elements` property will re-select every time it is accessed. To get a better understanding we can analyze the examples below.
+The elements option allows you to assign keys to specific jQuery selectors to be re-used within the page. The elements object will correspond the the created DocObjects's `.elements` property. The main difference between the `.elements` property and the default jQuery selector function (`$(...)`) is to reselect for possible changes when an update is made to the root element. This means that the `.elements` property will re-select every time it is accessed. To get a better understanding we can analyze the examples below.
 ```js
 var docObj = $(rootElement).DocObject({
     elements:{
@@ -77,8 +77,8 @@ docObj.elements['div.active'] //Will Return the currently active div
 
 The values option will determine the initial value of the `values` object associated with the given DocObject. When a DocObject's value is updated the following process will take place:
 
-1. The DocObject will run all render functions
-2. The DocObject will re-render all binds traversing from the root object down. 
+1. The DocObject will run all render functions that include dependencies in common with the value change.
+2. The DocObject will re-render all binds traversing from the root object down the DOM tree.
 
 ```js
 values: {
@@ -86,7 +86,6 @@ values: {
     anotherValue: {a:1, b:'Two'}
 },
 ```
-
 
 #### Updating Values
 To Update a DocObject's values you must **set the value property itself!**
