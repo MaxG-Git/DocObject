@@ -8,7 +8,8 @@ class DocObject {
         binds : {},
         elements: {},
         values: {},
-        bindAttr : 'd-bind'
+        bindAttr : 'd-bind',
+        bindInAttr : 'd-bind-in'
     }
 
 
@@ -20,6 +21,7 @@ class DocObject {
     render = [];
     binds = {};
     bindAttr;
+    bindInAttr;
 
     set values(values) {
         throw Error("Tried to set DocObject.value. Try creating a inner object instead.")
@@ -28,12 +30,13 @@ class DocObject {
         return this._values;
     }
     constructor(root, options) {
-        const { elements, values, render, binds, bindAttr } = $.extend( {}, this.defaults, options );
+        const { elements, values, render, binds, bindAttr, bindInAttr } = $.extend( {}, this.defaults, options );
         this.root = $(root)[0];
         this.root._DocObject = this;
         if (render && Array.isArray(render)) this.render = render;
         if (binds && typeof binds === 'object') this.binds = binds;
-        if(bindAttr) this.bindAttr = bindAttr
+        if(bindAttr) this.bindAttr = bindAttr;
+        if(bindInAttr) this.bindInAttr = bindInAttr;
         this.elements = new Proxy(!elements || typeof elements !== 'object' ? {} : elements, {
             get: (target, prop) => {
                 return target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
@@ -69,11 +72,16 @@ class DocObject {
         this.runBinds(this.root, valueChanges);
     }
     runBinds(root, valueChanges = {}) {
-        $(root).find(`[${this.bindAttr}]`).toArray().forEach(e => {
-                let bind = $(e).attr(this.bindAttr)
-                if (bind in this.binds) {
-                    $(e).replaceWith(this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, this.values)).attr(this.bindAttr, bind)), valueChanges));
-                    
+        $(root).find(`[${this.bindAttr}], [${this.bindInAttr}]`).toArray().forEach(e => {
+                let bind;
+                if(bind = $(e).attr(this.bindAttr)){
+                    if (bind in this.binds) {
+                        $(e).replaceWith(this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, this.values)).attr(this.bindAttr, bind)), valueChanges));
+                    }
+                }else if(bind = $(e).attr(this.bindInAttr)){
+                    if (bind in this.binds) {
+                        $(e).html(this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, this.values))), valueChanges));
+                    }
                 }
             })
         return root;

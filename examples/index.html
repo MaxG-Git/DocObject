@@ -56,12 +56,18 @@
                     <hr class="my-4">
                     <p>See Some Simple Examples of DocObject:</p>
                     <ul>
-                        ${examples.map(ex=>`<li><a href="/examples/${ex.href}">${ex.name}</a></li>`).join('\n')}
+                        ${examples.map(makeLI).join('\n')}
                     </ul>
                 </div>
             </div>`
         }
     })
+
+
+    //HTML Generator Functions:
+    function makeLI(item){
+        return `<li><a href="/examples/${item.href}">${item.name}</a></li>`
+    }
 
 
 

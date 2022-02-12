@@ -16,20 +16,19 @@
     <script src="/src/DocObject.js"></script>
 </head>
 <body>
-    <div id="items">
-
     
-        <ul d-bind="items">
-
+    
+        <ul d-bind-in="items">
         </ul>
+
         <input id="inp" type="text"/>
         <button type="button" onClick="addItem(this)">Add</button>
-    </div>
+    
 </body>
 
 
 <script>
-    var doc = new DocObject($('#items'), {
+    var doc = new DocObject(document.body, {
         values: {
             items: ["one", "two"]
         },
