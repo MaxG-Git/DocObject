@@ -52,9 +52,7 @@
 </head>
 <body>
     <div id="parent" onresize="handleResize(this)">
-        <div style="display: none;" id="child">
-            <h2 id="size">Hello</h2>
-        </div>
+        <div d-bind="child"></div>
     </div>
     
 </body>
@@ -65,10 +63,22 @@
         values: {
             message: 'Hello World',
             pos:{
-                x:30,
-                y:30
+                x:null,
+                y:null
             }
         },
+        binds:{
+            hello:({message})=>/*html*/`<span>${message}</span>`,
+            child:({pos : {x, y}})=>
+            x !== null ?
+            /*html*/`
+            <div id="child" style="left:${((x/2) - 250)}px; top:${((y/2) - 250)}px;">
+                <h2 id="size" d-bind="hello">Hello</h2>
+            </div>
+            ` : '',
+            
+        },
+
         elements: {
         
         },
@@ -77,16 +87,8 @@
                 action: () => {
                     doc.values.pos.x = doc.elements.parent[0].clientWidth
                     doc.values.pos.y = doc.elements.parent[0].clientHeight
-                    doc.elements.child.css('display', 'block')
                 },
                 dep:[true]
-            },
-            {
-                action: ({pos : {x, y}}) => {
-                    doc.elements.child.css('left', ((x/2) - 250) + 'px')
-                    doc.elements.child.css('top', ((y/2) - 250) + 'px')
-                },
-                dep:['pos', true]
             },
         ]
     })

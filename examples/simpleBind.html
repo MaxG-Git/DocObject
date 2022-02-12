@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+
+    <script src="/src/DocObject.js"></script>
+</head>
+<body>
+    <div d-bind="msg"></div>
+    <input type="text" onInput="setInput(this)"/>
+    
+</body>
+
+
+<script>
+    var doc = new DocObject({
+        values: {
+            message:'Hello'
+        },
+        binds:{
+            msg: ({message})=>`<h3>${message}</h3>`
+        },
+    }); $(doc.onLoad)
+
+    function setInput(e){
+        doc.values.message = e.value
+    }
+
+</script>
+</html>
