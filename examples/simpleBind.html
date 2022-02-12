@@ -16,14 +16,17 @@
     <script src="/src/DocObject.js"></script>
 </head>
 <body>
-    <div d-bind="msg"></div>
-    <input type="text" onInput="setInput(this)"/>
+    <div id="main">
+        <div d-bind="msg"></div>
+        <input type="text" onInput="setInput(this)"/>
+    </div>
+    <div d-bind="msg">g</div>
     
 </body>
 
 
 <script>
-    var doc = new DocObject({
+    var doc = $('#main').DocObject({
         values: {
             message:'Hello'
         },
