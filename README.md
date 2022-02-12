@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="#">
-    <img src="img\docobject_logoTextRight.svg" alt="Logo" width="120" height="80">
+    <img src="https://git.maxg.cloud/max/DocObject/src/branch/master/img/docobject_logoTextRight.svg" alt="Logo" width="120" height="80">
   </a>
 
   <h3 align="center">DocObject</h3>
