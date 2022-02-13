@@ -16,9 +16,14 @@
     <script src="/src/DocObject.js"></script>
 </head>
 <body>
+    
     <div id="main">
-        <div d-bind="msg"></div>
-        <input type="text" onInput="setInput(this)"/>
+        <div d-bind="container">
+            <p>B</p>
+            <div d-bind="msg"></div>
+            <p>C</p>
+        </div>
+           
     </div>
     <div d-bind="msg">g</div>
     
@@ -31,13 +36,21 @@
             message:'Hello'
         },
         binds:{
-            msg: ()=>/*HTML*/`<div><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
+            container:({message}, children)=>/*HTML*/`
+            <div style="border:1px solid black;">
+                <p>A</p>
+                ${children}
+                <p>D</p>
+                <input type="text" id="inp" onInput="setInput(this)" value="${message}"/>
+            </div>`,
+            msg: ()=>/*HTML*/`<div style="border:1px solid black;"><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
             inner: ({message})=>/*HTML*/`<span>${message}</span>`
         },
     }); $(doc.onLoad)
 
     function setInput(e){
         doc.values.message = e.value
+        DocObject.fixInput(doc.elements.inp)
     }
 
 </script>

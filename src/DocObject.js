@@ -3,6 +3,15 @@ if(!window.jQuery){
 }
 class DocObject {
 
+
+    static fixInput(element){
+        element = $(element);
+        element.focus()
+        let val = element.val()
+        element.val('').val(val)
+        return element;
+    }
+
     defaults = {
         render: [],
         binds : {},
@@ -15,7 +24,7 @@ class DocObject {
 
 
     _values = {};
-    _updating
+    _bindOrigin = {};
     elements;
     root;
     render = [];
@@ -64,7 +73,6 @@ class DocObject {
     
 
     runRender(valueChanges = {}) {
-
         this.render.filter(ren => (ren.dep && Array.isArray(ren.dep) && ren.dep.some((dep) => (dep in valueChanges))) || (ren.dep === undefined)).forEach(ren => {
             if (ren.clean) ren.clean({ ...this.values, ...valueChanges }, this.values)
             ren.action({ ...this.values, ...valueChanges }, this.values)
@@ -72,16 +80,14 @@ class DocObject {
         this.runBinds(this.root, valueChanges);
     }
     runBinds(root, valueChanges = {}) {
-        $(root).find(`[${this.bindAttr}], [${this.bindInAttr}]`).toArray().forEach(e => {
-                let bind;
-                if(bind = $(e).attr(this.bindAttr)){
-                    if (bind in this.binds) {
-                        $(e).replaceWith(this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, this.values)).attr(this.bindAttr, bind)), valueChanges));
-                    }
-                }else if(bind = $(e).attr(this.bindInAttr)){
-                    if (bind in this.binds) {
-                        $(e).html(this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, this.values))), valueChanges));
-                    }
+        $(root).find(`[${this.bindAttr}], [${this.bindInAttr}]`).toArray().forEach( e => {
+                e = $(e)
+                let [bind, bindAction] = [...( e.attr(this.bindAttr) ? [e.attr(this.bindAttr), 'replaceWith'] : [e.attr(this.bindInAttr), 'html'])]
+                if (bind in this.binds) {
+                    let inner = e.data('d-bind-initial') ? e.data('d-bind-initial') : (e.contents().toArray().filter(e => (e.outerHTML || e.wholeText)).map(e => e.outerHTML || e.wholeText))
+                    inner.toString = _=>inner.join('')
+                    e.data('d-bind-initial', inner)
+                    e[bindAction](this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, inner, this.values)).attr(this.bindAttr, bind).data('d-bind-initial', inner)), valueChanges));
                 }
             })
         return root;
