@@ -4,6 +4,8 @@ if(!window.jQuery){
 class DocObject {
 
 
+
+    
     static fixInput(element){
         element = $(element);
         element.focus()
@@ -11,6 +13,7 @@ class DocObject {
         element.val('').val(val)
         return element;
     }
+
 
     defaults = {
         render: [],
@@ -24,13 +27,14 @@ class DocObject {
 
 
     _values = {};
-    _bindOrigin = {};
+    bindMap;
     elements;
     root;
     render = [];
     binds = {};
     bindAttr;
     bindInAttr;
+    parser
 
     set values(values) {
         throw Error("Tried to set DocObject.value. Try creating a inner object instead.")
@@ -65,11 +69,43 @@ class DocObject {
                 target[prop] = value;
             }
         })
+        this.bindMap = {}
+        this.parser = new DOMParser()
         this.onLoad = () => {
             this.runRender({ [true]: true })
         }
         $(this.onLoad)
     }
+
+    generateBindKey(){
+        let key
+        do{
+            key = (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(12)).reduce((a, c)=>a + c.toString(36), '')
+        }while(Object.keys(this.bindMap).includes(key))
+        return key
+    }
+    
+    findOrRegisterBind(DOMelement){
+        if(!(DOMelement._DocObjectConfig)){
+            let originalChildren = [...DOMelement.childNodes]
+            originalChildren.toString = ()=> DOMelement.innerHTML
+            DOMelement._DocObjectConfig = {
+                originalChildren,
+                originalChildrenHTML:DOMelement.innerHTML
+            }
+        }else{
+            console.log('found')
+        }
+        return DOMelement._DocObjectConfig
+    }
+
+    generateBind(config, bind, bound){
+        let html = this.parser.parseFromString(bound, 'text/html').body.childNodes
+        html[0]._DocObjectConfig = config;
+        html[0].setAttribute(this.bindAttr, bind)
+        return html[0];
+    }
+
     
 
     runRender(valueChanges = {}) {
@@ -80,14 +116,24 @@ class DocObject {
         this.runBinds(this.root, valueChanges);
     }
     runBinds(root, valueChanges = {}) {
-        $(root).find(`[${this.bindAttr}], [${this.bindInAttr}]`).toArray().forEach( e => {
-                e = $(e)
-                let [bind, bindAction] = [...( e.attr(this.bindAttr) ? [e.attr(this.bindAttr), 'replaceWith'] : [e.attr(this.bindInAttr), 'html'])]
+        [ ...(root.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}]`)) ]
+        .forEach( element => {
+                let [bind, bindAction] = [...( element.getAttribute(this.bindAttr) ? [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)] : [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace])]
                 if (bind in this.binds) {
-                    let inner = e.data('d-bind-initial') ? e.data('d-bind-initial') : (e.contents().toArray().filter(e => (e.outerHTML || e.wholeText)).map(e => e.outerHTML || e.wholeText))
-                    inner.toString = _=>inner.join('')
-                    e.data('d-bind-initial', inner)
-                    e[bindAction](this.runBinds(($(this.binds[bind]({ ...this.values, ...valueChanges }, inner, this.values)).attr(this.bindAttr, bind).data('d-bind-initial', inner)), valueChanges));
+                    let config = this.findOrRegisterBind(element)
+                    bindAction(this.runBinds(
+                        this.generateBind(
+                            config, 
+                            bind, 
+                            this.binds[bind](
+                                { ...this.values, ...valueChanges }, 
+                                config.originalChildren, 
+                                this.values
+                                )
+                            ), 
+                        valueChanges
+                        )
+                    );
                 }
             })
         return root;
