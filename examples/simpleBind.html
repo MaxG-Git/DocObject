@@ -1,58 +1,69 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset='utf-8'>
-  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <title>Page Title</title>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
-  
-  
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-    crossorigin="anonymous"></script>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
 
     <script src="/src/DocObject.js"></script>
 </head>
+
 <body>
-    
+
     <div id="main">
-        <div d-bind="container">
+        <div d-bind="container" color="red">
             <p>B</p>
-            Test
-            <div d-bind="msg"></div>
+            <div d-bind="msg" color="blue"></div>
             <p>C</p>
         </div>
-           
+
     </div>
     <div d-bind="msg">g</div>
-    
+
 </body>
 
 
 <script>
     var doc = $('#main').DocObject({
         values: {
-            message:'Hello'
+            message: 'Hello'
         },
-        binds:{
-            container:({message}, children)=>/*HTML*/`
-            <div style="border:1px solid black;">
+        binds: {
+            container: ({ message }, {color}, children) =>/*HTML*/`
+            <div style="border:1px solid black; color:${color};">
                 <p>A</p>
                 ${children}
                 <p>D</p>
                 <input type="text" id="inp" onInput="setInput(this)" value="${message}"/>
             </div>`,
-            msg: ()=>/*HTML*/`<div style="border:1px solid black;"><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
-            inner: ({message})=>/*HTML*/`<span>${message}</span>`
+            msg: (values, {color}, children) =>/*HTML*/`<div style="border:1px solid black; color:${color};"><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
+            inner: ({ message }) =>/*HTML*/`<span>${message}</span>`
         },
     }); $(doc.onLoad)
 
-    function setInput(e){
-        doc.values.message = e.value
-        DocObject.fixInput(doc.elements.inp)
+    function setInput(e) {
+        DocObject.fixInput(doc.elements.inp, ()=>{
+            doc.values.message = e.value
+        })
     }
 
+  
+
+
+  
+
+
+
+
 </script>
+
 </html>

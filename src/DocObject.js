@@ -1,17 +1,47 @@
 if(!window.jQuery){
     throw Error("JQuery is not detected. Please load JQuery before DocObject")
 }
+// Credits: https://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
+function getCursorPos(element) {
+    if (document.selection) {
+        element.focus();
+        return  document.selection.createRange().moveStart('character', -oField.value.length)
+    }
+        return element.selectionDirection == 'backward' ? element.selectionStart : element.selectionEnd;;
+}
+
+// Credits: http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+function setCursorPos(element, pos) {
+    // Modern browsers
+    if (element.setSelectionRange) {
+    element.focus();
+    element.setSelectionRange(pos, pos);
+    
+    // IE8 and below
+    } else if (element.createTextRange) {
+      var range = element.createTextRange();
+      range.collapse(true);
+      range.moveEnd('character', pos);
+      range.moveStart('character', pos);
+      range.select();
+    }
+}
+
+class Bind extends HTMLElement {
+    constructor() {
+        super()
+    }
+}
+window.customElements.define('d-bind', Bind)
 class DocObject {
 
 
 
     
-    static fixInput(element){
-        element = $(element);
-        element.focus()
-        let val = element.val()
-        element.val('').val(val)
-        return element;
+    static fixInput(selector, action){
+        let pos = getCursorPos(selector[0])
+        action()
+        setCursorPos(selector.refresh()[0], pos)
     }
 
 
@@ -52,7 +82,11 @@ class DocObject {
         if(bindInAttr) this.bindInAttr = bindInAttr;
         this.elements = new Proxy(!elements || typeof elements !== 'object' ? {} : elements, {
             get: (target, prop) => {
-                return target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
+                let fresh =  target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
+                fresh.refresh = () => {
+                    return target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
+                };
+                return fresh;
             },
             set: (target, prop, value, receiver) => {
                 if (typeof value === 'string') value = $(this.root).find(value)
@@ -79,9 +113,8 @@ class DocObject {
 
     generateBindKey(){
         let key
-        do{
-            key = (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(12)).reduce((a, c)=>a + c.toString(36), '')
-        }while(Object.keys(this.bindMap).includes(key))
+        do { key = (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(12)).reduce((a, c)=>a + c.toString(36), '') }
+        while (Object.keys(this.bindMap).includes(key));
         return key
     }
     
@@ -91,10 +124,9 @@ class DocObject {
             originalChildren.toString = ()=> DOMelement.innerHTML
             DOMelement._DocObjectConfig = {
                 originalChildren,
-                originalChildrenHTML:DOMelement.innerHTML
+                originalChildrenHTML: DOMelement.innerHTML,
+                originalAttributes: [...DOMelement.attributes].reduce( (a,c)=>{return {...a, [c.name]:c.value} }, {} )
             }
-        }else{
-            console.log('found')
         }
         return DOMelement._DocObjectConfig
     }
@@ -102,7 +134,8 @@ class DocObject {
     generateBind(config, bind, bound){
         let html = this.parser.parseFromString(bound, 'text/html').body.childNodes
         html[0]._DocObjectConfig = config;
-        html[0].setAttribute(this.bindAttr, bind)
+        html[0].setAttribute((html[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
+        Object.entries(config.originalAttributes).filter(attA=>attA[0]!== 'd-bind-in').forEach(attA=>html[0].setAttribute(attA[0], attA[1]))
         return html[0];
     }
 
@@ -115,20 +148,32 @@ class DocObject {
         })
         this.runBinds(this.root, valueChanges);
     }
+    getBindAction(element) {
+        if(element.getAttribute(this.bindAttr)){
+            return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)]
+        }else if(element.localName === 'd-bind'){
+            return [element.getAttribute('to'), (replace)=>element.parentNode.replaceChild(replace, element)]
+        }else if(element.getAttribute(this.bindInAttr)){
+            return [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace.outerHTML]
+        }
+    }
+
+
     runBinds(root, valueChanges = {}) {
-        [ ...(root.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}]`)) ]
+        [ ...(root.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)) ]
         .forEach( element => {
-                let [bind, bindAction] = [...( element.getAttribute(this.bindAttr) ? [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)] : [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace])]
-                if (bind in this.binds) {
-                    let config = this.findOrRegisterBind(element)
+            //const [bind, bindAction] = [...( element.getAttribute(this.bindAttr) ? [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)] : [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace.outerHTML])]
+            const [bind, bindAction] = this.getBindAction(element)
+            if (bind in this.binds) {
+                    const config = this.findOrRegisterBind(element)
                     bindAction(this.runBinds(
                         this.generateBind(
                             config, 
                             bind, 
                             this.binds[bind](
                                 { ...this.values, ...valueChanges }, 
+                                config.originalAttributes,
                                 config.originalChildren, 
-                                this.values
                                 )
                             ), 
                         valueChanges

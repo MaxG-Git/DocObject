@@ -53,6 +53,7 @@
 <body>
     <div id="parent" onresize="handleResize(this)">
         <div d-bind="child"></div>
+         
     </div>
     
 </body>
@@ -72,7 +73,9 @@
             x !== null ?
             /*html*/`
             <div id="child" style="left:${((x/2) - 250)}px; top:${((y/2) - 250)}px;">
-                <h2 d-bind-in="hello"></h2>
+                <h2 d-bind-in="hello">
+                    
+                </h2>
             </div>
             ` : '',
             hello:({message})=>/*html*/`<span>${message}</span>`,
