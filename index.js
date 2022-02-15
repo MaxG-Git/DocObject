@@ -10,6 +10,10 @@ app.use(express.json());
 app.use('/examples', examples)
 app.use('/src', src)
 
+app.get('/', (req, res)=>{
+    res.redirect('/examples')
+})
+
 
 //Accept Client Request
 io.on('connection', (socket)=>{

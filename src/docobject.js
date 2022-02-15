@@ -45,6 +45,8 @@ class DocObject {
     }
 
 
+
+
     defaults = {
         render: [],
         binds : {},
@@ -111,6 +113,13 @@ class DocObject {
         }
         $(this.onLoad)
     }
+
+    isBindIn(element){
+        return ( element.getAttribute(this.bindInAttr) && true ) 
+    }
+    isBind(element){
+        return (element.localName === 'd-bind' || element.getAttribute(this.bindAttr) )
+    }
     
 
 
@@ -134,12 +143,18 @@ class DocObject {
         return DOMelement._DocObjectConfig
     }
 
-    generateBind(config, bind, bound){
+    generateBind(element, bind, bound){
+        const config = element._DocObjectConfig;
         let html = this.parser.parseFromString(bound, 'text/html').body.childNodes
-        html[0]._DocObjectConfig = config;
-        html[0].setAttribute((html[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
-        Object.entries(config.originalAttributes).filter(attA=>attA[0]!== 'd-bind-in').forEach(attA=>html[0].setAttribute(attA[0], attA[1]))
-        return html[0];
+        if(this.isBind(element)){
+            html[0]._DocObjectConfig = config;
+            html[0].setAttribute((html[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
+            Object.entries(config.originalAttributes).filter(attA=>attA[0]!== 'd-bind-in').forEach(attA=>html[0].setAttribute(attA[0], attA[1]))
+            console.log(html)
+            return html[0];
+        }else{
+            return [...html];
+        }
     }
 
     
@@ -152,37 +167,53 @@ class DocObject {
         this.runBinds(this.root, valueChanges);
     }
     getBindAction(element) {
-        if(element.getAttribute(this.bindAttr)){
-            return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)]
-        }else if(element.localName === 'd-bind'){
-            return [element.getAttribute('to'), (replace)=>element.parentNode.replaceChild(replace, element)]
-        }else if(element.getAttribute(this.bindInAttr)){
-            return [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace.outerHTML]
+        if(this.isBind(element)){
+            if(element.getAttribute(this.bindAttr)){
+                return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)]
+            }else if(element.localName === 'd-bind'){
+                return [element.getAttribute('to'), (replace)=>element.parentNode.replaceChild(replace, element)]
+            } 
+        }else if(this.isBindIn(element)){
+            return [element.getAttribute(this.bindInAttr), (replace)=>{
+                element.innerHTML = '';
+                for (let node of replace) element.appendChild(node);
+            }]
         }
     }
 
 
     runBinds(root, valueChanges = {}) {
-        [ ...(root.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)) ]
-        .forEach( element => {
-            //const [bind, bindAction] = [...( element.getAttribute(this.bindAttr) ? [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)] : [element.getAttribute(this.bindInAttr), (replace)=>element.innerHTML = replace.outerHTML])]
-            const [bind, bindAction] = this.getBindAction(element)
-            if (bind in this.binds) {
-                    const config = this.findOrRegisterBind(element)
-                    bindAction(this.runBinds(
-                        this.generateBind(
-                            config, 
-                            bind, 
-                            this.binds[bind](
-                                { ...this.values, ...valueChanges }, 
-                                config.originalAttributes,
-                                config.originalChildren, 
-                                )
-                            ), 
-                        valueChanges
-                        )
-                    );
-                }
+        (Array.isArray(root) ? root : [root])
+        .filter(rt=>rt && rt.querySelectorAll)
+        .forEach((rt)=>{
+            [ ...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)) ]
+            .forEach( element => {
+                //Get The Bind Method, and the Function to insert HTML 
+                const [bind, bindAction] = this.getBindAction(element)
+                //Check if Bind Exists 
+                if (bind in this.binds) {
+                        //Get Or register Bind Tag's Config
+                        const config = this.findOrRegisterBind(element)
+                        
+                        //Insert HTML
+                        bindAction(this.runBinds(
+                            
+                            //Wrap Bind Method to prepare bind for document
+                            this.generateBind(
+                                element, 
+                                bind, 
+                                //Run Bind Method
+                                this.binds[bind](
+                                    { ...this.values, ...valueChanges }, //Pass in updates values
+                                    config.originalAttributes, //Pass in original attributes
+                                    config.originalChildren, //Pass in original children
+                                    )
+                                ), 
+                            valueChanges
+                            )
+                        );
+                    }
+                })
             })
         return root;
     }
