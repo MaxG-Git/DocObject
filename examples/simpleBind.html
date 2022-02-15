@@ -20,11 +20,11 @@
 <body>
 
     <div id="main">
-        <div d-bind="container" color="red">
+        <d-bind to="container" color="red">
             <p>B</p>
-            <div d-bind="msg" color="blue"></div>
+                <div d-bind="msg" color="blue"></div>
             <p>C</p>
-        </div>
+        </d-bind>
 
     </div>
     <div d-bind="msg">g</div>
@@ -38,13 +38,7 @@
             message: 'Hello'
         },
         binds: {
-            container: ({ message }, {color}, children) =>/*HTML*/`
-            <div style="border:1px solid black; color:${color};">
-                <p>A</p>
-                ${children}
-                <p>D</p>
-                <input type="text" id="inp" onInput="setInput(this)" value="${message}"/>
-            </div>`,
+            container,
             msg: (values, {color}, children) =>/*HTML*/`<div style="border:1px solid black; color:${color};"><h3>Your Message:</h3><p d-bind="inner"></p></div>`,
             inner: ({ message }) =>/*HTML*/`<span>${message}</span>`
         },
@@ -56,6 +50,15 @@
         })
     }
 
+    function container({ message }, {color}, children){
+        return /*HTML*/`
+        <div style="border:1px solid black; color:${color};">
+            <p>A</p>
+            ${children}
+            <p>D</p>
+            <input type="text" id="inp" onInput="setInput(this)" value="${message}"/>
+        </div>`
+    }
   
 
 
