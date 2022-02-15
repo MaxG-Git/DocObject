@@ -80,6 +80,7 @@ class DocObject {
         if (binds && typeof binds === 'object') this.binds = binds;
         if(bindAttr) this.bindAttr = bindAttr;
         if(bindInAttr) this.bindInAttr = bindInAttr;
+        
         this.elements = new Proxy(!elements || typeof elements !== 'object' ? {} : elements, {
             get: (target, prop) => {
                 let fresh =  target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
@@ -110,6 +111,8 @@ class DocObject {
         }
         $(this.onLoad)
     }
+    
+
 
     generateBindKey(){
         let key
