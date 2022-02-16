@@ -103,3 +103,35 @@ Will **NOT** Trigger Binds and Render:
 ```js
 docObj.values.anotherValue.a = 3
 ```
+
+### Binds
+
+Binds allow for adding custom functionality to HTML elements and is the core for managing DOM updates using DocObject
+
+Their are currently many ways to define a bind depending on the unique scenario, Although all binds require the following
+
+* A **Bind Function** defined in the `options` object when instantiating a DocObject.
+* A host tag in the desired location of the bind (where to render this bind)
+
+#### Bind Function
+ A Bind function is a normal JavaScript function that...
+
+* Takes the following three parameters in their respective order:
+  * `values` : The current values of the DocObject
+  * `attrs` : A object containing the attributes of the `host tag`
+  * `children` : An array of the child nodes within the `host tag` *This can be interpolated into a string and will convert to html automatically*
+* Returns **One** the following:
+  * An HTML string to be bound to the `host tag`
+  * An HTMLElement (DOM) to be bound to the `host tag`
+  * An 1D array containing HTML strings and/or HTMLElements to be bound **inside** the `host tag`
+
+
+In the following snippet we can see the definition of 2 Bind Functions. On
+```js
+var docObj = $(rootElement).DocObject({
+    binds:{
+        container : (values, attrs, children) => `<div>${children}</div>`,
+    }
+    ...other options
+})
+```

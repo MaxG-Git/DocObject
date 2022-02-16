@@ -3,7 +3,7 @@
 <head>
   <meta charset='utf-8'>
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <title>Page Title</title>
+  <title>Dom - Bind</title>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
  
   
@@ -23,47 +23,43 @@
 
 <body>
     
+
         <d-bind to="centered">
-            <ul d-bind-in="items">
-            </ul>
-        </d-bind>
-        <d-bind to="centered">
-            <input id="inp" type="text"/>
-            <button type="button" onClick="addItem(this)">Add</button>
+            <div d-bind-in="domGenerated">
+            </div>
         </d-bind>
         
     
 </body>
-
-
 <script>
     
 
   
     
    
+    const centered = (values, attrs, children)=>/*HTML*/`<div style="display:flex; justify-content: center; height: ${window.innerHeight/2}px;">${children}</div>`
     //Bind Methods
-    const items =  ({items})=>items.map(item=>`<li>${item}</li>`).join('\n')
-    const centered = (values, attrs, children)=>/*HTML*/`<div style="display:flex; justify-content: center;">${children}</div>`
+    function domGenerated(values, attrs, children){
+        const element = document.createElement('div')
+        element.style.backgroundColor = '#282828'
+        element.style.color = '#ebdbb2'
+        element.append(document.createTextNode('Bind Using Dom Nodes'))
+        return ['<h1>Hello</h1>', element]
+    }
+
 
     var doc = new DocObject(document.body, {
         values: {
             items: ["one", "two"]
         },
         binds:{
-            items,
             centered,
+            domGenerated
         },
     }); $(doc.onLoad)
 
+   
 
-      
-    
-
-    function addItem(e){
-        doc.values.items = [...doc.values.items, doc.elements.inp.val()]
-        doc.elements.inp.val('')
-    }
 
 </script>
 </html>

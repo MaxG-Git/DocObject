@@ -35,13 +35,27 @@ class Bind extends HTMLElement {
 window.customElements.define('d-bind', Bind)
 class DocObject {
 
-
+    static parser = new DOMParser()
 
     
     static fixInput(selector, action){
         let pos = getCursorPos(selector[0])
         action()
         setCursorPos(selector.refresh()[0], pos)
+    }
+
+    static toNodeArray(any){
+        if(typeof any === 'string'){
+            return DocObject.parser.parseFromString(any, 'text/html').body.childNodes
+        }else if(NodeList.prototype.isPrototypeOf(any)){
+            return [ ...any]
+        }else if(Array.isArray(any)){
+            return any
+            .filter(e=> (typeof e === 'string') || (e instanceof HTMLElement || e instanceof Element) )
+            .map(e=> (typeof e === 'string') ? DocObject.toNodeArray(e)[0] : e );
+        } else if(any instanceof HTMLElement || any instanceof Element){
+            return [any]
+        }
     }
 
 
@@ -66,7 +80,7 @@ class DocObject {
     binds = {};
     bindAttr;
     bindInAttr;
-    parser
+    //parser
 
     set values(values) {
         throw Error("Tried to set DocObject.value. Try creating a inner object instead.")
@@ -107,7 +121,7 @@ class DocObject {
             }
         })
         this.bindMap = {}
-        this.parser = new DOMParser()
+        //this.parser = new DOMParser() 
         this.onLoad = () => {
             this.runRender({ [true]: true })
         }
@@ -145,15 +159,23 @@ class DocObject {
 
     generateBind(element, bind, bound){
         const config = element._DocObjectConfig;
-        let html = this.parser.parseFromString(bound, 'text/html').body.childNodes
+        const nodeArray = DocObject.toNodeArray(bound);
+        let html;
+        // if(typeof bound === 'string'){
+        //     html = DocObject.parser.parseFromString(bound, 'text/html').body.childNodes
+        // }else if(NodeList.prototype.isPrototypeOf(bound) || Array.isArray(bound)){
+        //     html = bound
+        // }else if(bound instanceof HTMLElement || bound instanceof Element){
+        //     html = [bound]
+        // }//Else possible error
+
         if(this.isBind(element)){
-            html[0]._DocObjectConfig = config;
-            html[0].setAttribute((html[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
-            Object.entries(config.originalAttributes).filter(attA=>attA[0]!== 'd-bind-in').forEach(attA=>html[0].setAttribute(attA[0], attA[1]))
-            console.log(html)
-            return html[0];
+            nodeArray[0]._DocObjectConfig = config;
+            nodeArray[0].setAttribute((nodeArray[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
+            Object.entries(config.originalAttributes).filter(attA=>!(['d-bind-in', 'to'].includes(attA[0]))).forEach(attA=>nodeArray[0].setAttribute(attA[0], attA[1]))
+            return nodeArray[0];
         }else{
-            return [...html];
+            return nodeArray;
         }
     }
 
