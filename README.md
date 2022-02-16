@@ -16,15 +16,19 @@
 
 <!-- ABOUT -->
 ## What is DocObject
+
 DocObject is a simple jQuery Plugin that aims to help structure page updates/injections. DocObject is designed to fit into existing jQuery powered websites as well as new projects. DocObject can be used to manage a single element up to an entire document.
 
 ### Built With
+
 DocObject is mainly built off jQuery and depends on jQuery functions.
 * [JQuery](https://jquery.com)
 
 <!-- GETTING STARTED -->
 ## Getting Started
+
 To use DocObject jQuery must be compiled first. To ensure jQuery uis complied simply add jQuery before including DocObject.
+
 ```html
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
@@ -34,7 +38,9 @@ To use DocObject jQuery must be compiled first. To ensure jQuery uis complied si
 ```
 
 ## Usage
+
 To get started using DocObject we can use first look at the `$.DocObject` function which generated a DocObject and attaches it to the `root` Dom Object.
+
 ```js
 var docObj = $(rootElement).DocObject({
     values: {
@@ -51,7 +57,9 @@ var docObj = $(rootElement).DocObject({
 To get a better idea of the options passed in lets look at each individual option.
 
 ### Elements
+
 The elements option allows you to assign keys to specific jQuery selectors to be re-used within the page. The elements object will correspond the the created DocObjects's `.elements` property. The main difference between the `.elements` property and the default jQuery selector function (`$(...)`) is to reselect for possible changes when an update is made to the root element. This means that the `.elements` property will re-select every time it is accessed. To get a better understanding we can analyze the examples below.
+
 ```js
 var docObj = $(rootElement).DocObject({
     elements:{
@@ -88,6 +96,7 @@ values: {
 ```
 
 #### Updating Values
+
 To Update a DocObject's values you must **set the value property itself!**
 
 Will Trigger Binds and Render:
@@ -106,14 +115,15 @@ docObj.values.anotherValue.a = 3
 
 ### Binds
 
-Binds allow for adding custom functionality to HTML elements and is the core for managing DOM updates using DocObject
+Binds allow for adding custom functionality to HTML elements and is the core for managing DOM updates using DocObject. A Bind's `host tag` will run its designated `bind function` each time it's parent DocObject value is updated and re-render.
 
 Their are currently many ways to define a bind depending on the unique scenario, Although all binds require the following
 
-* A **Bind Function** defined in the `options` object when instantiating a DocObject.
+* A **Bind Function** defined in the `binds` object when instantiating a DocObject.
 * A host tag in the desired location of the bind (where to render this bind)
 
 #### Bind Function
+
  A Bind function is a normal JavaScript function that...
 
 * Takes the following three parameters in their respective order:
@@ -123,15 +133,25 @@ Their are currently many ways to define a bind depending on the unique scenario,
 * Returns **One** the following:
   * An HTML string to be bound to the `host tag`
   * An HTMLElement (DOM) to be bound to the `host tag`
-  * An 1D array containing HTML strings and/or HTMLElements to be bound **inside** the `host tag`
+  * A one dimensional array containing HTML strings and/or HTMLElements to be bound **inside** the `host tag` ***Can only be used with the** `d-bind-in` host tag.
 
+In the following snippet we can see the definition of a Bind Function
 
-In the following snippet we can see the definition of 2 Bind Functions. On
 ```js
 var docObj = $(rootElement).DocObject({
     binds:{
-        container : (values, attrs, children) => `<div>${children}</div>`,
+        container : (values, attrs, children) => `<div> Hello ${children} World </div>`,
     }
     ...other options
 })
 ```
+
+#### Host Tag
+
+The host tag is an HTML tag that is designated to a bind function. A host tag can be defined in the following three ways:
+
+1. Using the shipped `d-bind` tag and setting a `to` attribute to the respective bind function: `<d-bind to="container"></d-bind>`
+2. Using any HTML tag and setting the `d-bind` attribute: `<span d-bind="container"></span>`
+3. Using any HTML tag and setting the `d-bind-in` attribute : `<span d-bind-in="container"></span>`
+
+> Unlike `d-bind` host tags which completely replaces the host tag upon render, the `d-bind-in` host tag inserts the bind inside the host tag. 

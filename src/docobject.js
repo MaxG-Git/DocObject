@@ -160,15 +160,6 @@ class DocObject {
     generateBind(element, bind, bound){
         const config = element._DocObjectConfig;
         const nodeArray = DocObject.toNodeArray(bound);
-        let html;
-        // if(typeof bound === 'string'){
-        //     html = DocObject.parser.parseFromString(bound, 'text/html').body.childNodes
-        // }else if(NodeList.prototype.isPrototypeOf(bound) || Array.isArray(bound)){
-        //     html = bound
-        // }else if(bound instanceof HTMLElement || bound instanceof Element){
-        //     html = [bound]
-        // }//Else possible error
-
         if(this.isBind(element)){
             nodeArray[0]._DocObjectConfig = config;
             nodeArray[0].setAttribute((nodeArray[0].localName === 'd-bind' ? 'to' : this.bindAttr), bind)
