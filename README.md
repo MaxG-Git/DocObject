@@ -140,7 +140,7 @@ In the following snippet we can see the definition of a Bind Function
 ```js
 var docObj = $(rootElement).DocObject({
     binds:{
-        container : (values, attrs, children) => `<div> Hello ${children} World </div>`,
+        helloWorld : (values, attrs, children) => `<div> Hello ${children} World </div>`,
     }
     ...other options
 })
@@ -150,8 +150,57 @@ var docObj = $(rootElement).DocObject({
 
 The host tag is an HTML tag that is designated to a bind function. A host tag can be defined in the following three ways:
 
-1. Using the shipped `d-bind` tag and setting a `to` attribute to the respective bind function: `<d-bind to="container"></d-bind>`
-2. Using any HTML tag and setting the `d-bind` attribute: `<span d-bind="container"></span>`
-3. Using any HTML tag and setting the `d-bind-in` attribute : `<span d-bind-in="container"></span>`
+1. Using the shipped `d-bind` tag and setting a `to` attribute to the respective bind function
+2. Using any HTML tag and setting the `d-bind` attribute to the respective bind function
+3. Using any HTML tag and setting the `d-bind-in` attribute to the respective bind function
 
 > Unlike `d-bind` host tags which completely replaces the host tag upon render, the `d-bind-in` host tag inserts the bind inside the host tag. 
+
+The following examples shows all three implementations of a host tag:
+
+```html
+<!-- 1 (d-bind tag) Binding to helloWorld bind function -->
+<d-bind to="helloWorld">
+</d-bind>
+
+<!-- 2 (d-bind tag) Binding to helloWorld bind function -->
+<span d-bind="helloWorld">
+</span>
+
+<!-- 3 (d-bind-in tag) Binding to helloWorld bind function -->
+<span d-bind-in="helloWorld">
+</span>
+```
+
+#### Combining Bind Functions and Host Tags
+
+In the previous example we saw the definition of a host tag and its respective bind function. We can better visualize this by combing the two. In this combined example we will define the bind function outside of the DocObject instantiation and pass it in as a variable.
+
+```html
+<body>
+    <d-bind>
+        <h1>Beautiful</h1>
+    </d-bind>
+</body>
+<script>
+function helloWorld (values, attrs, children) {
+    return `<div> Hello ${children} World </div>`;
+}
+
+var docObj = $(document.body).DocObject({
+    binds:{
+        helloWorld
+    }
+})
+</script>
+```
+
+Compiles too...
+
+```html
+<body>
+    <div>
+        Hello <h1>Beautiful</h1> World
+    </div>
+</body>
+```
