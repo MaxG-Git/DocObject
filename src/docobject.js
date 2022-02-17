@@ -1,6 +1,3 @@
-if(!window.jQuery){
-    throw Error("JQuery is not detected. Please load JQuery before DocObject")
-}
 // Credits: https://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
 function getCursorPos(element) {
     if (document.selection) {
@@ -39,36 +36,37 @@ class DocObject {
 
     
     static fixInput(selector, action){
-        let pos = getCursorPos(selector[0])
+        let pos = getCursorPos(selector()[0])
         action()
-        setCursorPos(selector.refresh()[0], pos)
+        setCursorPos(selector()[0], pos)
     }
 
     static toNodeArray(any){
         if(typeof any === 'string'){
             return DocObject.parser.parseFromString(any, 'text/html').body.childNodes
-        }else if(NodeList.prototype.isPrototypeOf(any)){
+        }else if(NodeList.prototype.isPrototypeOf(any) || (window.jQuery && any instanceof jQuery)){
             return [ ...any]
         }else if(Array.isArray(any)){
             return any
             .filter(e=> (typeof e === 'string') || (e instanceof HTMLElement || e instanceof Element) )
             .map(e=> (typeof e === 'string') ? DocObject.toNodeArray(e)[0] : e );
-        } else if(any instanceof HTMLElement || any instanceof Element){
+        } else if(any instanceof HTMLElement || any instanceof Element || any instanceof Document ){
             return [any]
         }
     }
 
-
-
-
-    defaults = {
-        render: [],
-        binds : {},
-        elements: {},
-        values: {},
-        bindAttr : 'd-bind',
-        bindInAttr : 'd-bind-in'
+    static defaultParams({
+        render = [],
+        binds = {},
+        elements = {},
+        values = {},
+        bindAttr = 'd-bind',
+        bindInAttr = 'd-bind-in',
+        isJQuery = false
+    } = {}){
+        return  { elements, values, render, binds, bindAttr, bindInAttr, isJQuery }
     }
+
 
 
 
@@ -80,7 +78,9 @@ class DocObject {
     binds = {};
     bindAttr;
     bindInAttr;
-    //parser
+    query;
+    _querySelect;
+    _isJQuery
 
     set values(values) {
         throw Error("Tried to set DocObject.value. Try creating a inner object instead.")
@@ -89,28 +89,40 @@ class DocObject {
         return this._values;
     }
     constructor(root, options) {
-        const { elements, values, render, binds, bindAttr, bindInAttr } = $.extend( {}, this.defaults, options );
-        this.root = $(root)[0];
+        const { elements, values, render, binds, bindAttr, bindInAttr, isJQuery } = DocObject.defaultParams(options)
+        this.root = DocObject.toNodeArray(root)[0]
+        if(isJQuery && window.jQuery){
+            this._isJQuery = true;
+            this._querySelect = (...props) => $(this.root).find(...props)
+        }else {
+            if(isJQuery){
+                console.error("DocObject: JQuery is not detected. Please load JQuery before DocObject")
+            }
+            this._isJQuery = false;
+            this._querySelect = (...props) => this.root.querySelectorAll(...props)
+        }
         this.root._DocObject = this;
         if (render && Array.isArray(render)) this.render = render;
         if (binds && typeof binds === 'object') this.binds = binds;
         if(bindAttr) this.bindAttr = bindAttr;
         if(bindInAttr) this.bindInAttr = bindInAttr;
         
-        this.elements = new Proxy(!elements || typeof elements !== 'object' ? {} : elements, {
+        this.query = new Proxy(!elements || typeof elements !== 'object' ? {} : elements, {
             get: (target, prop) => {
-                let fresh =  target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
-                fresh.refresh = () => {
-                    return target[prop] ? target[prop]() : $(this.root).find( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop)
-                };
-                return fresh;
+                return  target[prop] ? target[prop] : _ => this._querySelect( /.*(\.|\#|\[|\]).*/gm.exec(prop) ? prop : '#' + prop) 
             },
             set: (target, prop, value, receiver) => {
-                if (typeof value === 'string') value = $(this.root).find(value)
+                if (typeof value === 'string') value = () => this._querySelect(value)
                 target[prop] = _ => value
                 return true;
             }
         })
+        this.elements = new Proxy(this.query, {
+            get: (target, prop) => {
+                return target[prop]()
+            }
+        })
+
         if (elements) {
             Object.entries(elements).forEach((e => { this.elements[e[0]] = e[1] }))
         }
@@ -125,7 +137,12 @@ class DocObject {
         this.onLoad = () => {
             this.runRender({ [true]: true })
         }
-        $(this.onLoad)
+        if(this._isJQuery){
+            $(this.onLoad)
+        }else{
+            window.onload = this.onLoad
+        }
+            
     }
 
     isBindIn(element){
@@ -231,19 +248,20 @@ class DocObject {
         return root;
     }
 }
-
-(function($) {
-    $.fn.extend({
-        DocObject : function( options = null) {
-            if(this[0]._DocObject && !options ) return this[0]._DocObject;
-            this.each(function() {
-                new DocObject(this, options);
-            });
-            new DocObject(this, options)
-            return this[0]._DocObject;
-        }
-    })
-})(jQuery);
+if(window.jQuery){
+    (function($) {
+        $.fn.extend({
+            DocObject : function( options = null) {
+                if(this[0]._DocObject && !options ) return this[0]._DocObject;
+                this.each(function() {
+                    new DocObject(this, options);
+                });
+                new DocObject(this, options)
+                return this[0]._DocObject;
+            }
+        })
+    })(jQuery);
+}
 
 /*
 var doc = new DocObject({
