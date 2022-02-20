@@ -133,7 +133,6 @@ class DocObject {
             }
         })
         this.bindMap = {}
-        //this.parser = new DOMParser() 
         this.onLoad = () => {
             this.runRender({ [true]: true })
         }
@@ -151,9 +150,6 @@ class DocObject {
     isBind(element){
         return (element.localName === 'd-bind' || element.getAttribute(this.bindAttr) )
     }
-    
-
-
     generateBindKey(){
         let key
         do { key = (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(12)).reduce((a, c)=>a + c.toString(36), '') }
@@ -162,7 +158,7 @@ class DocObject {
     }
     
     findOrRegisterBind(DOMelement){
-        if(!(DOMelement._DocObjectConfig)){
+        if(DOMelement._DocObjectConfig === undefined){
             let originalChildren = [...DOMelement.childNodes]
             originalChildren.toString = ()=> DOMelement.innerHTML
             DOMelement._DocObjectConfig = {
@@ -256,7 +252,7 @@ if(window.jQuery){
                 this.each(function() {
                     new DocObject(this, options);
                 });
-                new DocObject(this, options)
+                new DocObject(this, { isJQuery:true, ...options })
                 return this[0]._DocObject;
             }
         })

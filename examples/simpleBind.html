@@ -6,7 +6,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Page Title</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <script src="/src/docobject.js"></script>
+    <script src="/dist/docobject.bundle.js"></script>
     <style>
         d-bind {
             display: none;
@@ -30,7 +30,7 @@
 
 
 <script>
-    var doc = new DocObject(document.querySelector('#main'), {
+    var doc = DocObject.create(document.querySelector('#main'), {
         
         values: {
             message: 'Hello'

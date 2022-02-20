@@ -9,7 +9,8 @@ const src = require('./src')
 app.use(express.json());
 app.use('/examples', examples)
 app.use('/src', src)
-
+app.use('/dist', express.static('./dist'))
+console.log(__dirname)
 app.get('/', (req, res)=>{
     res.redirect('/examples')
 })
