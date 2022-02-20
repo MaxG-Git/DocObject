@@ -187,7 +187,7 @@ var DocObject = (() => {
                 if (typeof any === 'string') {
                     return [...DocObject.parser.parseFromString(any, 'text/html').body.childNodes];
                 }
-                else if (NodeList.prototype.isPrototypeOf(any) || (any instanceof jQuery)) {
+                else if (NodeList.prototype.isPrototypeOf(any) || (window.jQuery && any instanceof jQuery)) {
                     return [...any];
                 }
                 else if (Array.isArray(any)) {
