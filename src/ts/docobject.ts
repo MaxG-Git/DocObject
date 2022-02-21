@@ -13,6 +13,17 @@ declare global {
     }
 }
 
+
+/* Util Methods */
+
+export function fixInput(selector, action){
+    let pos = getCursorPos(selector()[0])
+    action()
+    setCursorPos(selector()[0], pos)
+}
+
+
+
 type DocObjectHTMLLike = 
 | Node
 | NodeList
@@ -36,6 +47,7 @@ interface DocObjectOptions {
     bindInAttr : string;
     isJQuery : boolean;
 }
+
 
 
 
@@ -95,12 +107,6 @@ window.customElements.define('d-bind', Bind)
 export class DocObject {
 
     static parser : DOMParser = new DOMParser()
-
-    static fixInput(selector, action){
-        let pos = getCursorPos(selector()[0])
-        action()
-        setCursorPos(selector()[0], pos)
-    }
 
     static toNodeArray(any : DocObjectHTMLLike | Array<string|Node> ) : Array<Node> {
         if(typeof any === 'string'){
@@ -348,14 +354,14 @@ if(window.jQuery){
                 this.each(function() {
                     new DocObject(this, options);
                 });
-                new DocObject(this, options)
+                new DocObject(this, { isJQuery:true, ...options })
                 return this[0]._DocObject;
             }
         })
     })(jQuery);
 }
 
-export function create(root : DocObjectElement | JQuery, options : object) : DocObject{
+export function obj(root : DocObjectElement | JQuery, options : object) : DocObject{
     return new DocObject(root, options)
 }
 
