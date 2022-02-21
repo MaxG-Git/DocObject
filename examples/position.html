@@ -13,7 +13,7 @@
     integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
     crossorigin="anonymous"></script>
 
-    <script src="/src/docobject.js"></script>
+    <script src="/dist/docobject.bundle.min.js"></script>
 
     <style>
 
@@ -61,7 +61,7 @@
 
 
 <script>
-    var doc = new DocObject(document.body, {
+    var docO = Doc.obj(document.body, {
         isJQuery:true,
         values: {
             message: 'Hello World',
@@ -76,29 +76,29 @@
         render: [
             {
                 action: () => {
-                    doc.values.pos.x = doc.elements.parent[0].clientWidth
-                    doc.values.pos.y = doc.elements.parent[0].clientHeight
-                    doc.elements.child.css('display', 'block')
+                    docO.values.pos.x = docO.elements.parent[0].clientWidth
+                    docO.values.pos.y = docO.elements.parent[0].clientHeight
+                    docO.elements.child.css('display', 'block')
                 },
                 dep:[true]
             },
             {
                 action: ({pos : {x, y}}) => {
-                    doc.elements.child.css('left', ((x/2) - 250) + 'px')
-                    doc.elements.child.css('top', ((y/2) - 250) + 'px')
+                    docO.elements.child.css('left', ((x/2) - 250) + 'px')
+                    docO.elements.child.css('top', ((y/2) - 250) + 'px')
                 },
                 dep:['pos', true]
             },
         ]
     })
-    $(doc.onLoad)
+    $(docO.onLoad)
 
     $(window).on('resize', ()=>{
-        //doc.values.x = doc.elements.parent[0].clientWidth
-        doc.values.pos = {
-            ...doc.values.pos, 
-            x:doc.elements.parent[0].clientWidth, 
-            y:doc.elements.parent[0].clientHeight
+        //docO.values.x = docO.elements.parent[0].clientWidth
+        docO.values.pos = {
+            ...docO.values.pos, 
+            x:docO.elements.parent[0].clientWidth, 
+            y:docO.elements.parent[0].clientHeight
         }
     })
 

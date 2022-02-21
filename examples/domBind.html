@@ -13,7 +13,7 @@
     integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
     crossorigin="anonymous"></script>
 
-    <script src="/src/docobject.js"></script>
+    <script src="/dist/docobject.bundle.min.js"></script>
 </head>
 <style>
     d-bind{
@@ -48,7 +48,7 @@
     }
 
 
-    var doc = new DocObject(document.body, {
+    var docO = Doc.obj(document.body, {
         values: {
             items: ["one", "two"]
         },
@@ -56,7 +56,7 @@
             centered,
             domGenerated
         },
-    }); $(doc.onLoad)
+    }); $(docO.onLoad)
 
    
 

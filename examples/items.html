@@ -44,7 +44,7 @@
     const items =  ({items})=>items.map(item=>`<li>${item}</li>`).join('\n')
     const centered = (values, attrs, children)=>/*HTML*/`<div style="display:flex; justify-content: center;">${children}</div>`
 
-    var doc = DocObject.create(document.body, {
+    var doc = Doc.obj(document.body, {
         isJQuery:true,
         values: {
             items: ["one", "two"]
