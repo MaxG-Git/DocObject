@@ -17,30 +17,43 @@
 <!-- ABOUT -->
 ## What is DocObject
 
-DocObject is a simple jQuery Plugin that aims to help structure page updates/injections. DocObject is designed to fit into existing jQuery powered websites as well as new projects. DocObject can be used to manage a single element up to an entire document.
+DocObject is a simple Script/jQuery Plugin that aims to help structure page updates/injections. DocObject is designed to fit into existing websites as well as new projects. DocObject can be used to manage a single element up to an entire document.
 
+DocObject comes with plug-and-play jQuery support but may also be used without jQuery
 ### Built With
 
-DocObject is mainly built off jQuery and depends on jQuery functions.
+DocObject can be used with jQuery
 * [JQuery](https://jquery.com)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To use DocObject jQuery must be compiled first. To ensure jQuery uis complied simply add jQuery before including DocObject.
-
+To use DocObject with jQuery must be compiled first. To ensure jQuery uis complied simply add jQuery before including DocObject. DocObject may be used without jQuery. When using DocObjct with jQuery, HTML Elements will be passed as jQuery Object. Without jQuery, DocObject will instead use arrays of DOM Nodes.
 ```html
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="..." crossorigin="anonymous"></script>
     <!-- DocObject -->
-    <script src="/js/DocObject.js"></script>
+    <script src="/dist/DocObject.bundle.min.js"></script>
 ```
 
 ## Usage
+DocObject ships with the global variable `Doc`. The `Doc` variable is how we can access DocObject Functions.
+To get started we can first look at the `.obj` function which generates a DocObject and attaches it to the `root` Dom Object.
+```js
+var docObj = Doc.obj(document.body, {
+    values: {
+    },
+    elements:{
+    },
+    binds:{
+    },
+    render: [
+    ],
+})
+```
 
-To get started using DocObject we can use first look at the `$.DocObject` function which generated a DocObject and attaches it to the `root` Dom Object.
-
+We may achieve the same result by using the `$.DocObject` function added to jQuery by DocObject
 ```js
 var docObj = $(rootElement).DocObject({
     values: {
@@ -178,7 +191,7 @@ In the previous example we saw the definition of a host tag and its respective b
 
 ```html
 <body>
-    <d-bind>
+    <d-bind to="helloWorld">
         <h1>Beautiful</h1>
     </d-bind>
 </body>
@@ -199,7 +212,7 @@ Compiles too...
 
 ```html
 <body>
-    <div>
+    <div d-bind="helloWorld">
         Hello <h1>Beautiful</h1> World
     </div>
 </body>

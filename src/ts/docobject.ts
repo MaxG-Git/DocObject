@@ -1,11 +1,13 @@
 
 import {setCursorPos, getCursorPos} from "./utils"
+import { DocObjectDomBind, DocObjectBind } from './docbind'
+import { DocObjectRender } from './docrender'
 import runError, { 
     ROOT_ERROR,
     JQUERY_NOT_DETECTED
 } from './errors';
 
-
+/******* GLOBALS *******/
 declare global {
     interface Window {
         jQuery:any;
@@ -14,8 +16,7 @@ declare global {
 }
 
 
-/* Util Methods */
-
+/******* UTILITY METHODS *******/
 export function fixInput(selector, action){
     let pos = getCursorPos(selector()[0])
     action()
@@ -23,20 +24,13 @@ export function fixInput(selector, action){
 }
 
 
-
-type DocObjectHTMLLike = 
+/******* DOC OBJECT *******/
+export type DocObjectHTMLLike = 
 | Node
 | NodeList
 | JQuery 
 | string;
 
-/** Parameter Interfaces */
-
-interface DocObjectRender extends Array<DocObjectRenderObject>{}
-
-interface DocObjectBind {
-    [key: string] : DocObjectBindFunction
-}
 
 interface DocObjectOptions {
     render : DocObjectRender;
@@ -48,62 +42,26 @@ interface DocObjectOptions {
     isJQuery : boolean;
 }
 
-
-
-
-
-
-
-/** DocObject Interfaces */
-interface DocObjectElement extends HTMLElement{
+interface DocObjectElement extends HTMLElement {
     _DocObject? : DocObject
 }
-interface DocObjectDomBind extends HTMLElement {
-    _DocObjectConfig? : DocObjectConfig
-}
-
-
-interface DocObjectBindAttribute {
-    [key: string] : string
-}
-
-interface DocObjectChildren extends Array<Node>{}
 
 interface DocObjectElements {
     [key: string] : string | ((selector : string ) => NodeList|JQuery)
 }
 
-
-type DocObjectBindFunction = ( values:object, attrs: DocObjectBindAttribute, children:DocObjectChildren)=> DocObjectHTMLLike;
-type DocObjectRenderFunction = ( values:object, prevValues:object)=>void;
-
-interface DocObjectRenderObject {
-    clean : DocObjectRenderFunction
-    action : DocObjectRenderFunction
-    dep : Array<string>
-}
-
-
-interface DocObjectConfig {
+export interface DocObjectConfig {
     originalChildren: Array<Node>;
     originalChildrenHTML: string;
     originalAttributes: {[key:string] : string};
 }
-
-
-
-
 
 class Bind extends HTMLElement {
     constructor() {
         super()
     }
 }
-
-
 window.customElements.define('d-bind', Bind)
-
-
 export class DocObject {
 
     static parser : DOMParser = new DOMParser()
