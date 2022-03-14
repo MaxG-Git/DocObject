@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+
+    <script src="/dist/docobject.bundle.min.js"></script>
+</head>
+<body>
+    
+    <d-bind to="Hello"></d-bind>
+    <d-bind to="Count"></d-bind>
+
+    <button id="button" onclick="addCount()" >Increase Count</button>
+</body>
+
+
+<script>
+
+    var doc = $(document.body).DocObject( {
+        isJQuery:true,
+        values: {
+            message: 'Hello World',
+            count: 1
+        },
+        binds : {
+            Hello : ({ message }) => `<h1>${message}</h1>`,
+            Count : ({ count }) => `<h3>${count}</h3>`
+        },
+    });
+   
+    function addCount() {
+        doc.values.count += 1
+    }
+    
+</script>
+</html>

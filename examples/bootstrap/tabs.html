@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Doc Object Example</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <!-- Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <!-- DocObject -->
+    <script src="/dist/docobject.bundle.js"></script>
+</head>
+<style>
+    d-bind {
+        display: none;
+    }
+
+
+    html {
+        width: 100%;
+        height: 100%;
+    }
+
+
+    body {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #center {
+        margin: auto;
+        width: 400px;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+    }
+</style>
+
+
+<body>
+    <div id="center">
+
+        
+        <div id="navTabs">
+            
+            <ul class="nav nav-tabs">
+               <d-bind to="TabLink" key="home">Home</d-bind>
+               <d-bind to="TabLink" key="pageA">Page A</d-bind>
+               <d-bind to="TabLink" key="pageB">Page B</d-bind>
+               <d-bind to="TabLink" key="pageC">Page C</d-bind>
+            </ul>
+
+            <d-bind to="TabContent" key="home">Home Page Content</d-bind>
+            <d-bind to="TabContent" key="pageA">Page A Content</d-bind>
+            <d-bind to="TabContent" key="pageB">Page B Content</d-bind> 
+            <d-bind to="TabContent" key="pageC">Page C Content</d-bind>
+    
+        </div>
+       
+      
+    
+    </div>
+</body>
+
+
+
+<script>
+
+
+
+var navTabs = $('#navTabs').DocObject({
+    
+    values:{
+        active: 'home'
+    },
+    binds:{
+        TabLink:({active}, {key}, children)=>/*HTML*/`
+        <li class="nav-item">
+            <button 
+            key="${key}" 
+            class="nav-link ${active === key ? 'active' : ''}" 
+            aria-current="page" 
+            onClick="selectNav(this)">
+            ${children}
+            </button>
+        </li>
+        `,
+        TabContent:({active}, {key}, children)=>/*HTML*/`
+        <div key="${key}" class="tab-content">
+            <div class="tab-pane fade ${key === active ? 'show active' : ''}">
+                ${children}
+            </div>
+        </div>
+        `
+    }
+})
+
+
+function selectNav(element){
+    navTabs.values.active = $(element).attr('key')
+}
+
+
+
+
+</script>
+
+</html>

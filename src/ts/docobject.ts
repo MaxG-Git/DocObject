@@ -40,6 +40,8 @@ interface DocObjectOptions {
     bindAttr : string;
     bindInAttr : string;
     isJQuery : boolean;
+    connections : Array<DocObject>
+    removeOnload : boolean
 }
 
 interface DocObjectElement extends HTMLElement {
@@ -87,15 +89,17 @@ export class DocObject {
         values = {},
         bindAttr = 'd-bind',
         bindInAttr = 'd-bind-in',
-        isJQuery = false
+        isJQuery = false,
+        connections = [],
+        removeOnload = false
     } = {}) : DocObjectOptions {
-        return  { elements, values, render, binds, bindAttr, bindInAttr, isJQuery } 
+        return  { elements, values, render, binds, bindAttr, bindInAttr, isJQuery, connections, removeOnload } 
     }
 
 
 
 
-    _values : object;
+    readonly _values : object;
     elements : ProxyHandler<DocObjectElements>;
     root : DocObjectElement;
     render : DocObjectRender;
@@ -105,6 +109,7 @@ export class DocObject {
     query : ProxyHandler<DocObjectElements>;
     _querySelect : (selector:string)=> NodeList | JQuery;
     _isJQuery : boolean
+    _connections : Array<DocObject>
     onLoad: ()=>void
 
     set values(values) {
@@ -117,7 +122,7 @@ export class DocObject {
     
     constructor(root : DocObjectElement | JQuery, options : object) {
         //Add Default Parameters to options
-        const { elements, values, render, binds, bindAttr, bindInAttr, isJQuery } : DocObjectOptions = DocObject.defaultParams(options)
+        const { elements, values, render, binds, bindAttr, bindInAttr, isJQuery, connections, removeOnload } : DocObjectOptions = DocObject.defaultParams(options)
         
         //Extract DOM element from HTMLElement Or Jquery Object
         let rootElement = DocObject.toNodeArray(root)[0]
@@ -128,6 +133,8 @@ export class DocObject {
         }else{
             runError(ROOT_ERROR, true)
         }
+
+        this._connections = connections;
 
         //Set Jquery
         if(isJQuery && window.jQuery){
@@ -194,17 +201,22 @@ export class DocObject {
             set: (target, prop, value, receiver) => {
                 this.runRender({ [prop]: value })
                 target[prop] = value;
+                this.runConnections({[prop]:value})
                 return true;
             }
         })
         
         this.onLoad = () => {
             this.runRender({ [true as any]: true })
+            this.runConnections(this.values)
         }
-        if(this._isJQuery){
-            $(this.onLoad)
-        }else{
-            window.onload = this.onLoad
+
+        if(!removeOnload){
+            if(this._isJQuery){
+                $(this.onLoad)
+            }else{
+                window.onload = this.onLoad
+            }
         }
             
     }
@@ -215,6 +227,11 @@ export class DocObject {
     isBind(element : DocObjectDomBind) : boolean {
         return (element.localName === 'd-bind' || element.getAttribute(this.bindAttr)) && true
     }
+    static isDobObjectElement(element : DocObjectElement ) : boolean {
+        return ( element._DocObject instanceof DocObject  )
+    }
+
+
     findOrRegisterBind(DOMelement : DocObjectDomBind) : DocObjectConfig {
         if(DOMelement._DocObjectConfig === undefined){
             let originalChildren = [...DOMelement.childNodes]
@@ -266,8 +283,7 @@ export class DocObject {
             }]
         }
     }
-
-
+    querySelectorAll = (selector : string) => this.root.querySelectorAll(selector)
     runBinds(root, valueChanges = {}) {
         (Array.isArray(root) ? root : [root]) 
         .filter(rt=>rt && rt instanceof HTMLElement)
@@ -302,6 +318,19 @@ export class DocObject {
                 })
             })
         return root;
+    }
+
+    runConnections(valueChanges : {[key : string|symbol] : any } = {[true as any]:true} ){
+        for(let ky in valueChanges){
+            this._connections.forEach((connected) => connected.values[ky] = valueChanges[ky])
+        }
+
+    }
+
+    connect(...docObjects : [DocObject]){
+        this._connections = [...this._connections, ...docObjects]
+        this.runConnections(this.values);
+        return this;
     }
 }
 if(window.jQuery){

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+  crossorigin="anonymous"></script>
+<script src="/dist/docobject.bundle.min.js"></script>
+</head>
+
+<body>
+    <d-bind to="centerH1">
+        <span d-bind-in="myCount"></span>
+    </d-bind>
+    <button onclick="cButton()">Go</button>
+</body>
+
+
+<script>
+    function myCount({count}, attrs, children){
+     let s = document.createElement('span')
+     s.innerHTML = count
+     return ['<span>Count:</span>', s]
+ }
+
+ var dc = Doc.obj(document.body, {
+    values:{
+        count:1
+    },
+    binds :{
+        myCount,
+        centerH1:({count}, {color}, children)=>`<h1 style="display:flex; color:${color}; justify-content:center">${children}</h1>`,
+        
+     }
+ })
+
+
+
+
+ function cButton(){
+     dc.values.count +=1
+ }
+  
+</script>
+</html>

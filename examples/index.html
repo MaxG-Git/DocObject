@@ -6,8 +6,9 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Doc Object Example</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-   <!-- BootStrap CSS -->
-   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -15,56 +16,105 @@
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous"></script>
     <!-- Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
     <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
     <!-- DocObject -->
     <script src="/dist/docobject.bundle.min.js"></script>
 </head>
 
 <body>
     <div d-bind="body">
-        
+
+
     </div>
 </body>
 <script>
-    var doc = $(document.body).DocObject({
-        values:{
-            examples: [
-                {name: "Simple Counter", href:'count.html'},
-                {name: "Simple List", href:'items.html'},
-                {name: "Simple Binds Example", href:'simpleBind.html'},
-                {name: "Position (Using render functions)", href:'position.html'},
-                {name: "Position (Using Binds)", href:'positionBind.html'},
-                {name: "Dom created bind", href:'domBind.html'},
+
+
+
+
+
+    var simple = $(document.body).DocObject({
+        values: {
+            simple: [
+                { name: "Simple Counter (Using Binds)", href: 'simple/countBind.html' },
+                { name: "Simple Counter (Using Render Functions)", href: 'simple/count.html' },
+                { name: "Simple List", href: 'simple/items.html' },
+                { name: "Simple Binds Example", href: 'simple/simpleBind.html' },
+                { name: "Position (Using Render Functions)", href: 'simple/position.html' },
+                { name: "Position (Using Binds)", href: 'simple/positionBind.html' },
+                { name: "Dom created bind", href: 'simple/domBind.html' },
+            ],
+
+            bootstrap: [
+                { name: "List Group", href: 'bootstrap/listgroup.html' },
+                { name: "Nav Tabs", href: 'bootstrap/tabs.html' },
             ]
+
         },
         binds: {
-            body:()=>/*HTML*/`
+            body: () =>/*HTML*/`
             <div>
                 <div d-bind="main"></div>
             </div>
             `,
-            main: ({examples}) =>/*HTML*/`
+
+            main: ({ simple, bootstrap }) =>/*HTML*/`
             <div style="margin:2rem">
                 <div class="jumbotron">
                     <h1 class="display-4">Welcome to DocObject</h1>
                     <p class="lead">A Lightweight jQuery Plugin to structure page updates</p>
                     <i>Made by: Max Grossman</i>
                     <hr class="my-4">
-                    <p>See Some Simple Examples of DocObject:</p>
-                    <ul>
-                        ${examples.map(makeLI).join('\n')}
-                    </ul>
+                    
+                    <div style="display: flex; gap:2rem;">
+                        <d-bind to="card" title="See Some Simple Examples of DocObject:">
+                        <ul>
+                            ${simple.map(makeLI).join('\n')}
+                        </ul>
+                    </d-bind>
+                   
+                    <d-bind to="card" title="Bootstrap Examples">
+                        <ul>
+                            ${bootstrap.map(makeLI).join('\n')}
+                        </ul>
+                    </d-bind>
+
+                    </div>
+                    
+                  
                 </div>
             </div>`,
-            
+
+            card: (values, {title, subtitle, header}, children) =>/*HTML*/`
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                   ${
+                    header ? `<div class="card-header">${header}</div>` : ''
+                   }
+                   ${
+                    title ? `<h5 class="card-title">${title}</h5>` : ''
+                   }
+                   ${
+                    subtitle ? `<h6 class="card-subtitle mb-2 text-muted">${subtitle}</h6>` : ''
+                   }
+                    ${children}
+                </div>
+            </div>
+            `
         }
     })
 
 
+
+
     //HTML Generator Functions:
-    function makeLI(item){
+    function makeLI(item) {
         return `<li><a href="/examples/${item.href}">${item.name}</a></li>`
     }
 

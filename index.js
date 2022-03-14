@@ -2,12 +2,11 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const examples = require('./examples')
 const src = require('./src')
 
 
 app.use(express.json());
-app.use('/examples', examples)
+app.use('/examples',  express.static('./examples'))
 app.use('/src', src)
 app.use('/dist', express.static('./dist'))
 console.log(__dirname)
