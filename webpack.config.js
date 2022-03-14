@@ -7,7 +7,7 @@ module.exports = (env) => {
     return {
     mode: "development",
     devtool: "inline-source-map",
-    entry: "./src/ts/docobject.ts",
+    entry: "./src/ts/index.ts",
     output: {
       filename: env.PROD_BUILD ? "docobject.bundle.min.js" : "docobject.bundle.js",
       path: path.resolve(__dirname, 'dist'),

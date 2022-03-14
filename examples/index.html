@@ -54,6 +54,11 @@
             bootstrap: [
                 { name: "List Group", href: 'bootstrap/listgroup.html' },
                 { name: "Nav Tabs", href: 'bootstrap/tabs.html' },
+            ],
+
+            docgen: [
+                { name: "Simple Example", href: 'gen/simple.html' },
+                { name: "Passing Attributes", href: 'gen/pass.html' },
             ]
 
         },
@@ -64,7 +69,7 @@
             </div>
             `,
 
-            main: ({ simple, bootstrap }) =>/*HTML*/`
+            main: ({ simple, bootstrap, docgen }) =>/*HTML*/`
             <div style="margin:2rem">
                 <div class="jumbotron">
                     <h1 class="display-4">Welcome to DocObject</h1>
@@ -82,6 +87,12 @@
                     <d-bind to="card" title="Bootstrap Examples">
                         <ul>
                             ${bootstrap.map(makeLI).join('\n')}
+                        </ul>
+                    </d-bind>
+
+                    <d-bind to="card" title="DocGen Examples">
+                        <ul>
+                            ${docgen.map(makeLI).join('\n')}
                         </ul>
                     </d-bind>
 

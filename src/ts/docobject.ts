@@ -1,7 +1,6 @@
-
-import {setCursorPos, getCursorPos} from "./utils"
-import { DocObjectDomBind, DocObjectBind } from './docbind'
+import { DocObjectDomBind, DocObjectBind, DocObjectBindGen } from './docbind'
 import { DocObjectRender } from './docrender'
+import  DocGen  from './docgen'
 import runError, { 
     ROOT_ERROR,
     JQUERY_NOT_DETECTED
@@ -16,12 +15,7 @@ declare global {
 }
 
 
-/******* UTILITY METHODS *******/
-export function fixInput(selector, action){
-    let pos = getCursorPos(selector()[0])
-    action()
-    setCursorPos(selector()[0], pos)
-}
+
 
 
 /******* DOC OBJECT *******/
@@ -29,12 +23,13 @@ export type DocObjectHTMLLike =
 | Node
 | NodeList
 | JQuery 
+| Number
 | string;
 
 
 interface DocObjectOptions {
     render : DocObjectRender;
-    binds : DocObjectBind;
+    binds : DocObjectBind | DocObjectBindGen;
     elements : {[key:string]: string};
     values : object;
     bindAttr : string;
@@ -44,7 +39,7 @@ interface DocObjectOptions {
     removeOnload : boolean
 }
 
-interface DocObjectElement extends HTMLElement {
+export interface DocObjectElement extends HTMLElement {
     _DocObject? : DocObject
 }
 
@@ -58,19 +53,14 @@ export interface DocObjectConfig {
     originalAttributes: {[key:string] : string};
 }
 
-class Bind extends HTMLElement {
-    constructor() {
-        super()
-    }
-}
-window.customElements.define('d-bind', Bind)
+
 export class DocObject {
 
     static parser : DOMParser = new DOMParser()
 
     static toNodeArray(any : DocObjectHTMLLike | Array<string|Node> ) : Array<Node> {
-        if(typeof any === 'string'){
-            return [...DocObject.parser.parseFromString(any, 'text/html').body.childNodes]
+        if(typeof any === 'string' || typeof any === 'number'){
+            return [...DocObject.parser.parseFromString(any.toString(), 'text/html').body.childNodes]
         }else if(NodeList.prototype.isPrototypeOf(any) || (window.jQuery && any instanceof jQuery)){
             return [ ...(any as NodeList)]
         }else if(Array.isArray(any)){
@@ -110,6 +100,7 @@ export class DocObject {
     _querySelect : (selector:string)=> NodeList | JQuery;
     _isJQuery : boolean
     _connections : Array<DocObject>
+    g : DocGen
     onLoad: ()=>void
 
     set values(values) {
@@ -160,8 +151,11 @@ export class DocObject {
         //Set Render Functions
         this.render = render;
 
+        //Create Related DocGen
+        this.g = new DocGen(this)
+
         //Set Bind Functions
-        this.binds = binds;
+        this.binds = (typeof binds === 'function') ? binds(this.g) : binds ;
 
         //Set Bind Attribute
         this.bindAttr = bindAttr;
@@ -205,6 +199,9 @@ export class DocObject {
                 return true;
             }
         })
+
+       
+       
         
         this.onLoad = () => {
             this.runRender({ [true as any]: true })
@@ -333,24 +330,7 @@ export class DocObject {
         return this;
     }
 }
-if(window.jQuery){
-    (function($) {
-        $.fn.extend({
-            DocObject : function( options = null) {
-                if(this[0]._DocObject && !options ) return this[0]._DocObject;
-                this.each(function() {
-                    new DocObject(this, options);
-                });
-                new DocObject(this, { isJQuery:true, ...options })
-                return this[0]._DocObject;
-            }
-        })
-    })(jQuery);
-}
 
-export function obj(root : DocObjectElement | JQuery, options : object) : DocObject{
-    return new DocObject(root, options)
-}
 
 
 /*

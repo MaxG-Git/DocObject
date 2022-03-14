@@ -57,34 +57,48 @@
 
 
 <body>
-    <div id="center">
-        <d-bind to="inner">Test</d-bind>
-    </div>
+    <d-bind to="inner">Test</d-bind>
 </body>
 
 
 
 <script>
+    var cen = $('body').DocObject({
+        values: {
+            greet: true,
+        },
+        binds: (g) => {
+            return {
 
-var cen = $('#center').DocObject({
-    binds:{
-        inner:  (values, attrs, children)=> {
-            return `<span>${children}</span>`
+                btn: (values, attrs, children) => g.button(
+                    children, {
+                    onclick: () => cen.values.greet = !(cen.values.greet)
+                }),
+
+                inner({ greet }, attrs, children) {
+                    return g.div(
+                        g.div(
+                            [
+                                g.h1(greet ? 'Hello' : 'Bye'),
+                                g.btn('Change Message')
+
+                            ],
+                             { style: { margin: 'auto' } }),
+                         {
+                            style: {
+                                display: 'flex',
+                                justifyContent: 'center'
+                            }
+                        })
+                }
+            }
         }
-    }
-})
+    })
 
 
-/*
-const { g } = Doc;
 
-g.div(
-    g.h1(
-        'hello'
-    )
-, {style:'display:flex;'})
 
-*/
+
 </script>
 
 </html>
