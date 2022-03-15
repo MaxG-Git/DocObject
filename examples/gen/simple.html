@@ -64,36 +64,34 @@
 
 <script>
     var cen = $('body').DocObject({
-        values: {
-            greet: true,
-        },
-        binds: (g) => {
-            return {
+            values: {
+                greet: true,
+            },
+            binds: {
 
-                btn: (values, attrs, children) => g.button(
+                btn: (values, attrs, children) => (gen) => gen.button(
                     children, {
                     onclick: () => cen.values.greet = !(cen.values.greet)
                 }),
 
-                inner({ greet }, attrs, children) {
-                    return g.div(
-                        g.div(
-                            [
-                                g.h1(greet ? 'Hello' : 'Bye'),
-                                g.btn('Change Message')
 
-                            ],
-                             { style: { margin: 'auto' } }),
-                         {
-                            style: {
-                                display: 'flex',
-                                justifyContent: 'center'
-                            }
-                        })
-                }
+                inner: ({ greet }, attrs, children) => (gen) => gen.div(
+                        gen.div(
+                            [
+                                gen.h1(greet ? 'Hello' : 'Bye'),
+                                gen.btn('Change Message'),
+                            ], 
+                        { style: { margin: 'auto' } 
+                    }),
+                    {
+                        style: {
+                            display: 'flex',
+                            justifyContent: 'center'
+                    }
+                })
+                
             }
-        }
-    })
+        })
 
 
 

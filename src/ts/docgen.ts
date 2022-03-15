@@ -18,7 +18,8 @@ export default class DocGen {
     Gen(prop : string){
         return (inner : DocObjectHTMLLike | Array<string|Node> = [] , attrs : DocObjectBindAttribute) => {
             if(this.obj && prop in this.obj.binds){
-                return this.obj.binds[prop](this.obj.values, attrs, DocObject.toNodeArray(inner))
+                const bound = this.obj.binds[prop](this.obj.values, attrs, DocObject.toNodeArray(inner))
+                return typeof bound === 'function' ? bound(this.obj.g) : bound;
             }
             let element = document.createElement(prop)
             for(let key in attrs){

@@ -24,7 +24,9 @@ export type DocObjectHTMLLike =
 | NodeList
 | JQuery 
 | Number
-| string;
+| string
+| ((gen: DocGen) => DocObjectHTMLLike);
+
 
 
 interface DocObjectOptions {
@@ -242,9 +244,9 @@ export class DocObject {
         return DOMelement._DocObjectConfig
     }
 
-    generateBind(element : DocObjectDomBind, bind, bound : DocObjectHTMLLike ) : DocObjectDomBind | Node[] {
+    generateBind(element : DocObjectDomBind, bind, bound : DocObjectHTMLLike) : DocObjectDomBind | Node[] {
         const config = element._DocObjectConfig;
-        const nodeArray = DocObject.toNodeArray(bound);
+        const nodeArray = DocObject.toNodeArray(typeof bound === 'function' ? bound(this.g) : bound);
         if(this.isBind(element)){
             const firstElement = nodeArray.find(el => el instanceof HTMLElement) as DocObjectDomBind;
             firstElement._DocObjectConfig = config;
