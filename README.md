@@ -10,7 +10,6 @@
   <p align="center">
     A Lightweight jQuery Plugin to structure page updates
     <br />
-    <a href="examples\index.html"><strong>Explore the docs »</strong></a>
   </p>
 </div>
 

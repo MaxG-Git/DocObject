@@ -57,82 +57,23 @@
 
 
 <body>
-    <div id="center">
-
-        
-        <div id="navTabs">
-            
-            <ul class="nav nav-tabs">
-               <d-bind to="TabLink" key="home">Home</d-bind>
-               <d-bind to="TabLink" key="pageA">Page A</d-bind>
-               <d-bind to="TabLink" key="pageB">Page B</d-bind>
-               <d-bind to="TabLink" key="pageC">Page C</d-bind>
-            </ul>
-
-            <d-bind to="TabContent" key="home">Home Page Content</d-bind>
-            <d-bind to="TabContent" key="pageA">Page A Content</d-bind>
-            <d-bind to="TabContent" key="pageB">Page B Content</d-bind> 
-            <d-bind to="TabContent" key="pageC">Page C Content</d-bind>
-    
-        </div>
-       
-      
-    
-    </div>
+    <d-bind to="mn">
+            Hello
+    </d-bind>
 </body>
 
 
 
 <script>
-
-
-
-var navTabs = $('#navTabs').DocObject({
-    
-    values:{
-        active: 'home'
-    },
-    binds:{
-        TabLink:({active}, {key}, children) => gen => gen.li(
-            gen.button(
-                children, {
-                    class: `nav-link ${active === key ? 'active' : ''}`,
-                    onclick: _=> selectNav(key)
-                }
-            ), {
-                class: 'nav-item'
-            }
-        ),
-        TabContent:({active}, {key}, children) => gen => gen.div(
-            gen.div(
-                children, {
-                    class:`tab-pane fade ${key === active ? 'show active' : ''}`
-                }
-            ), {
-                key,
-                class:'tab-content'
-            }
-        )
-    }
-})
-
-
-function selectNav(key){
-    navTabs.values.active = key
-}
-
-// <li class="nav-item">
-//             <button 
-//             key="${key}" 
-//             class="nav-link ${active === key ? 'active' : ''}" 
-//             aria-current="page" 
-//             onClick="selectNav(this)">
-//             ${children}
-//             </button>
-//         </li>
-//         `,
-
-
+    var cen = $('body').DocObject({
+       values:{
+           hello:'Hello'
+       },
+        binds:{
+            btn:(values, attrs, children) => (gen) => gen.button(children),
+            mn: ({hello}, attrs, children) => (gen) =>  gen.h1(gen.btn(hello), {style:{color:'red'}})
+       }
+    })
 </script>
 
 </html>
