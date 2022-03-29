@@ -18,22 +18,21 @@
 
 DocObject is a simple Script/jQuery Plugin that aims to help structure page updates/injections. DocObject is designed to fit into existing websites as well as new projects. DocObject can be used to manage a single element up to an entire document.
 
-DocObject comes with plug-and-play jQuery support but may also be used without jQuery
-### Built With
+DocObject comes with **plug-and-play jQuery support** but also **may be used without jQuery**
 
-DocObject can be used with jQuery
 * [JQuery](https://jquery.com)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To use DocObject with jQuery must be compiled first. To ensure jQuery uis complied simply add jQuery before including DocObject. DocObject may be used without jQuery. When using DocObjct with jQuery, HTML Elements will be passed as jQuery Object. Without jQuery, DocObject will instead use arrays of DOM Nodes.
+When using DocObject with jQuery, ensure to load jQuery before loading DocObject.
+
 ```html
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="..." crossorigin="anonymous"></script>
     <!-- DocObject -->
-    <script src="/dist/DocObject.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MaxG-Git/DocObject/dist/docobject.bundle.min.js"></script>
 ```
 
 ## Usage
@@ -171,15 +170,15 @@ The host tag is an HTML tag that is designated to a bind function. A host tag ca
 The following examples shows all three implementations of a host tag:
 
 ```html
-<!-- 1 (d-bind tag) Binding to helloWorld bind function -->
+<!-- 1 (d-bind tag) Binding tag to helloWorld bind function -->
 <d-bind to="helloWorld">
 </d-bind>
 
-<!-- 2 (d-bind tag) Binding to helloWorld bind function -->
+<!-- 2 (d-bind tag) Binding tag to helloWorld bind function -->
 <span d-bind="helloWorld">
 </span>
 
-<!-- 3 (d-bind-in tag) Binding to helloWorld bind function -->
+<!-- 3 (d-bind-in tag) Binding inside tag to helloWorld bind function -->
 <span d-bind-in="helloWorld">
 </span>
 ```
