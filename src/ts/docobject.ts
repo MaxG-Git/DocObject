@@ -41,6 +41,12 @@ interface DocObjectOptions {
     removeOnload : boolean
 }
 
+interface DocObjectRunBindOptions {
+    root : any;
+    valueChanges: object;
+    additionalHosts? : Array<HTMLElement>
+}
+
 export interface DocObjectElement extends HTMLElement {
     _DocObject? : DocObject
 }
@@ -86,6 +92,14 @@ export class DocObject {
         removeOnload = false
     } = {}) : DocObjectOptions {
         return  { elements, values, render, binds, bindAttr, bindInAttr, isJQuery, connections, removeOnload } 
+    }
+    
+    defaultRunBindOptions({
+        root,
+        valueChanges,
+        additionalHosts = []
+    } : DocObjectRunBindOptions ) : DocObjectRunBindOptions {
+        return {root, valueChanges, additionalHosts}
     }
 
 
@@ -219,7 +233,7 @@ export class DocObject {
         }
             
     }
-
+    
     isBindIn(element : DocObjectDomBind) : boolean {
         return ( element.getAttribute(this.bindInAttr) && true ) 
     }
@@ -265,7 +279,7 @@ export class DocObject {
             if (ren.clean) ren.clean({ ...this.values, ...valueChanges }, this.values)
             ren.action({ ...this.values, ...valueChanges }, this.values)
         })
-        this.runBinds(this.root, valueChanges);
+        this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root]});
     }
 
     getBindAction(element : HTMLElement) : [string, (replace : Node & NodeList )=>void] {
@@ -280,14 +294,20 @@ export class DocObject {
                 element.innerHTML = '';
                 for (let node of replace) element.appendChild(node);
             }]
+        }else if(DocObject.isDobObjectElement(element)){
+            return ['this',   (replace)=>{
+                element.innerHTML = '';
+                for (let node of replace) element.appendChild(node);
+            }]
         }
     }
     querySelectorAll = (selector : string) => this.root.querySelectorAll(selector)
-    runBinds(root, valueChanges = {}) {
+    runBinds(params : DocObjectRunBindOptions) {
+        const {root, valueChanges, additionalHosts } = this.defaultRunBindOptions(params);
         (Array.isArray(root) ? root : [root]) 
         .filter(rt=>rt && rt instanceof HTMLElement)
         .forEach((rt)=>{
-            [ ...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)) ] 
+            [ ...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)), ...additionalHosts] 
             .forEach( element => {
                 //Get The Bind Method, and the Function to insert HTML 
                 const [bind, bindAction] = this.getBindAction(element)
@@ -297,10 +317,8 @@ export class DocObject {
                         const config = this.findOrRegisterBind(element)
                         
                         //Insert HTML
-                        bindAction(this.runBinds(
-                            
-                            //Wrap Bind Method to prepare bind for document
-                            this.generateBind(
+                        bindAction(this.runBinds({
+                            root: this.generateBind(  //Wrap Bind Method to prepare bind for document
                                 element, 
                                 bind, 
                                 //Run Bind Method
@@ -311,7 +329,7 @@ export class DocObject {
                                     )
                                 ), 
                             valueChanges
-                            )
+                            })
                         );
                     }
                 })

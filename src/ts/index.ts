@@ -5,6 +5,10 @@ import {setCursorPos, getCursorPos} from "./utils"
 class Bind extends HTMLElement {
     constructor() {
         super()
+        this.attachShadow({mode: "open"});
+        const div = document.createElement("div");
+        div.style.display = 'none';
+        this.shadowRoot.append(div);
     }
 }
 
