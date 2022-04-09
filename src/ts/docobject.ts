@@ -235,7 +235,7 @@ export class DocObject {
        
         
         this.onLoad = () => {
-            this.runRender(this.values)
+            this.runRender({...this.values, [true as any]: true})
             this.runConnections(this.values)
         }
 
