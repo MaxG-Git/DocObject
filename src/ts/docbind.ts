@@ -14,7 +14,7 @@ export interface DocObjectBind {
 
 export type DocObjectBindGen = ( gen : DocGen) => DocObjectBind
 
-export type DocObjectBindFunction = ( values:object, attrs: DocObjectBindAttribute, children:DocObjectChildren)=> DocObjectHTMLLike;
+export type DocObjectBindFunction = ( values:object, attrs: DocObjectBindAttribute, children:DocObjectChildren, valueChanges:object)=> DocObjectHTMLLike;
 
 
 export interface DocObjectBindAttribute {

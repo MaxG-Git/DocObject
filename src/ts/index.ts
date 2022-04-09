@@ -12,6 +12,8 @@ class Bind extends HTMLElement {
     }
 }
 
+
+
 /******* UTILITY METHODS *******/
 export function fixInput(selector, action){
     let pos = getCursorPos(selector()[0])
@@ -21,6 +23,7 @@ export function fixInput(selector, action){
 
 
 window.customElements.define('d-bind', Bind)
+window.customElements.define('doc-object', DocObjectElement)
 if(window.jQuery){
     (function($) {
         $.fn.extend({

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+ 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+
+    <script src="/dist/docobject.bundle.js">
+       
+    </script>
+</head>
+<style>
+    d-bind{
+        display: none;
+    }
+</style>
+
+<body>
+    
+        <d-bind to="centered">
+            <ul d-bind-in="items">
+            </ul>
+        </d-bind>
+        <d-bind to="centered">
+            <input id="inp" type="text"/>
+            <button type="button" onClick="addItem(this)">Add</button>
+        </d-bind>
+        
+    
+</body>
+
+
+<script>
+    
+   
+    //Bind Methods
+    const items =  ({items})=> g => g.li( (item)=>'#'+item , {each:items} )
+
+    const centered = (values, attrs, children)=>/*HTML*/`<div style="display:flex; justify-content: center;">${children}</div>`
+
+    var doc = Doc.obj(document.body, {
+        isJQuery:true,
+        values: {
+            items: ["one", "two"]
+        },
+        binds:{
+            items,
+            centered,
+        },
+        properties:{
+            each : (items, type, inner,) => g => {
+                return items.map(e=> g[type](inner(e)) )
+            }
+        }
+    }); $(doc.onLoad)
+
+
+    function addItem(e){
+        doc.values.items = [...doc.values.items, doc.elements.inp.val()]
+        doc.elements.inp.val('')
+    }
+
+</script>
+</html>
+

@@ -15,25 +15,52 @@
 
 <body>
    <div id="doc" >
+    <div id="docb" >
        
 
+    </div>
    </div>
 </body>
 
 
 <script>
+  var x  = 1;
+
+   
+
+   var docb = $('#docb').DocObject({
+       values:{
+        message:'Hello World 2'
+       },
+       binds:{
+         this:(values, attrs, children, {parent})=>g=>{
+            return g.h1(parent)
+          }
+       },
+       render:[
+         {
+           action:()=>console.log('DocB Re-Render'),
+         }
+       ]
+   })
 
    var doc = $('#doc').DocObject({
        values:{
-            message:'Hello World'
+        parent:'Parent'
        },
        binds:{
-           this: ({message}) => g => g.center(message),
-           center: (_, __, children) => g => g.div(
-                    g.h1(children), {style:{display:'flex', justifyContent:'center'}}
-               )
-       }
+        this:({message},__,c)=>g=>{
+            return [ ...c]
+          }
+       },
+       render:[
+         {
+           action:()=>console.log('DocA Re-Render'),
+         }
+       ]
    })
+
+
 
  
   

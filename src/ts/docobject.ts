@@ -47,8 +47,18 @@ interface DocObjectRunBindOptions {
     additionalHosts? : Array<HTMLElement>
 }
 
-export interface DocObjectElement extends HTMLElement {
+// export interface DocObjectElement extends HTMLElement {
+//     _DocObject? : DocObject
+// }
+
+export class DocObjectElement extends HTMLElement {
     _DocObject? : DocObject
+    constructor() {
+        super()
+        if(!DocObject.isDobObjectElement(this)){
+            this._DocObject = new DocObject(this, {})
+        } 
+    }
 }
 
 interface DocObjectElements {
@@ -77,6 +87,8 @@ export class DocObject {
             .map(e=> (typeof e === 'string') ? DocObject.toNodeArray(e)[0] : e );
         } else if(any instanceof Node || any instanceof Document ){
             return [any]
+        }else{
+            return []
         }
     }
 
@@ -164,6 +176,9 @@ export class DocObject {
         //Set Root Object to this
         this.root._DocObject = this;
 
+        //Add query-able attribute to root element
+        this.root.setAttribute('doc-object', '')
+
         //Set Render Functions
         this.render = render;
 
@@ -209,8 +224,8 @@ export class DocObject {
 
         this._values = new Proxy(!values || typeof values !== 'object' ? {} : values, {
             set: (target, prop, value, receiver) => {
-                this.runRender({ [prop]: value })
                 target[prop] = value;
+                this.runRender({ [prop]: value })
                 this.runConnections({[prop]:value})
                 return true;
             }
@@ -220,7 +235,7 @@ export class DocObject {
        
         
         this.onLoad = () => {
-            this.runRender({ [true as any]: true })
+            this.runRender(this.values)
             this.runConnections(this.values)
         }
 
@@ -282,7 +297,7 @@ export class DocObject {
         this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root]});
     }
 
-    getBindAction(element : HTMLElement) : [string, (replace : Node & NodeList )=>void] {
+    getBindAction(element : HTMLElement, valueChanges: object) : [string, (replace : Node & NodeList )=> void ] | null {
         if(this.isBind(element)){
             if(element.getAttribute(this.bindAttr)){
                 return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)]
@@ -295,44 +310,54 @@ export class DocObject {
                 for (let node of replace) element.appendChild(node);
             }]
         }else if(DocObject.isDobObjectElement(element)){
-            return ['this',   (replace)=>{
-                element.innerHTML = '';
-                for (let node of replace) element.appendChild(node);
-            }]
+            if(element === this.root){
+                return ['this',   (replace)=>{
+                    element.innerHTML = '';
+                    for (let node of replace) element.appendChild(node);
+                }]
+            }else{
+                (element as DocObjectElement)._DocObject.runRender(valueChanges)
+                return null
+            }
         }
     }
     querySelectorAll = (selector : string) => this.root.querySelectorAll(selector)
-    runBinds(params : DocObjectRunBindOptions) {
-        const {root, valueChanges, additionalHosts } = this.defaultRunBindOptions(params);
-        (Array.isArray(root) ? root : [root]) 
-        .filter(rt=>rt && rt instanceof HTMLElement)
-        .forEach((rt)=>{
-            [ ...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to]`)), ...additionalHosts] 
-            .forEach( element => {
-                //Get The Bind Method, and the Function to insert HTML 
-                const [bind, bindAction] = this.getBindAction(element)
-                //Check if Bind Exists 
-                if (bind in this.binds) {
-                        //Get Or register Bind Tag's Config
-                        const config = this.findOrRegisterBind(element)
-                        
-                        //Insert HTML
-                        bindAction(this.runBinds({
-                            root: this.generateBind(  //Wrap Bind Method to prepare bind for document
-                                element, 
-                                bind, 
-                                //Run Bind Method
-                                this.binds[bind](
-                                    { ...this.values, ...valueChanges }, //Pass in updates values
-                                    config.originalAttributes, //Pass in original attributes
-                                    config.originalChildren, //Pass in original children
-                                    )
-                                ), 
-                            valueChanges
-                            })
-                        );
-                    }
-                })
+    runBinds(params: DocObjectRunBindOptions) {
+        const { root, valueChanges, additionalHosts } = this.defaultRunBindOptions(params);
+        (Array.isArray(root) ? root : [root])
+            .filter(rt => rt && rt instanceof HTMLElement)
+            .forEach((rt) => {
+                [...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to], [doc-object]`)), ...additionalHosts]
+                    .forEach(element => {
+
+                        const bindInstructions = this.getBindAction(element, valueChanges)
+                        if (bindInstructions) {
+                            //Get The Bind Method, and the Function to insert HTML 
+                            const [bind, bindAction] = bindInstructions;
+                            //Check if Bind Exists 
+                            if (bind in this.binds) {
+                                //Get Or register Bind Tag's Config
+                                const config = this.findOrRegisterBind(element)
+
+                                //Insert HTML
+                                bindAction(this.runBinds({
+                                    root: this.generateBind(  //Wrap Bind Method to prepare bind for document
+                                        element,
+                                        bind,
+                                        //Run Bind Method
+                                        this.binds[bind](
+                                            this.values, //Pass in updates values
+                                            config.originalAttributes, //Pass in original attributes
+                                            config.originalChildren, //Pass in original children
+                                            valueChanges
+                                        )
+                                    ),
+                                    valueChanges
+                                })
+                                );
+                            }
+                        }
+                    })
             })
         return root;
     }

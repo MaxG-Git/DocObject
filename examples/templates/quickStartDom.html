@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>DocObject jQuery Quick Start</title>
+    
+    <!-- DocObject Script Here -->
+    <script src="https://cdn.jsdelivr.net/gh/MaxG-Git/DocObject/dist/docobject.bundle.min.js"></script>
+
+</head>
+
+
+<body>
+    
+    
+</body>
+
+
+<script>
+    var doc = Doc.obj(document.body, {
+        values: {
+            message: 'Hello World!',
+        },
+        binds : (g) => {
+            return {
+                this : ({message}) => g.h1(message), 
+            }
+        },
+    });
+
+
+
+    
+</script>
+</html>

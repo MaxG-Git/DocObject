@@ -49,7 +49,7 @@
                 { name: "Position (Using Render Functions)", href: 'simple/position.html' },
                 { name: "Position (Using Binds)", href: 'simple/positionBind.html' },
                 { name: "Dom created bind", href: 'simple/domBind.html' },
-                { name: "DocObjectRoot Element As Bind", href: 'simple/root.html' },
+                
             ],
 
             bootstrap: [
@@ -60,7 +60,13 @@
             docgen: [
                 { name: "Simple Example", href: 'gen/simple.html' },
                 { name: "Passing Attributes", href: 'gen/pass.html' },
-            ]
+            ],
+
+            template: [
+                { name: "Quick Start (No jQuery)", href: 'templates/quickStartDom.html' },
+                { name: "Quick Start (jQuery)", href: 'templates/quickStartjQuery.html' },
+            ],
+
 
         },
         binds: {
@@ -70,7 +76,7 @@
             </div>
             `,
 
-            main: ({ simple, bootstrap, docgen }) =>/*HTML*/`
+            main: ({ simple, bootstrap, docgen, template }) =>/*HTML*/`
             <div style="margin:2rem">
                 <div class="jumbotron">
                     <h1 class="display-4">Welcome to DocObject</h1>
@@ -94,6 +100,12 @@
                     <d-bind to="card" title="DocGen Examples">
                         <ul>
                             ${docgen.map(makeLI).join('\n')}
+                        </ul>
+                    </d-bind>
+
+                    <d-bind to="card" title="DocGen Examples">
+                        <ul>
+                            ${template.map(makeLI).join('\n')}
                         </ul>
                     </d-bind>
 

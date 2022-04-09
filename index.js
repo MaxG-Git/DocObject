@@ -22,5 +22,5 @@ io.on('connection', (socket)=>{
 
 
 var server = http.listen(8080, () => {
-    console.log('server is running on port', server.address().port);
+    console.log('server is running at http://localhost:', server.address().port);
   });

@@ -18,7 +18,7 @@ export default class DocGen {
     Gen(prop : string){
         return (inner : DocObjectHTMLLike | Array<string|Node> = [] , attrs : DocObjectBindAttribute) => {
             if(this.obj && prop in this.obj.binds){
-                const bound = this.obj.binds[prop](this.obj.values, attrs, DocObject.toNodeArray(inner))
+                const bound = this.obj.binds[prop](this.obj.values, attrs, DocObject.toNodeArray(inner), this.obj.values)
                 return typeof bound === 'function' ? bound(this.obj.g) : bound;
             }
             let element = document.createElement(prop)
@@ -27,7 +27,7 @@ export default class DocGen {
                     for(let skey in attrs[key as string]){
                         element.style[skey] = attrs[key][skey]
                     }
-                } else if(key.startsWith('on')){
+                } else if(key in Object.getPrototypeOf(element)){
                     element[key] = attrs[key]
                 }else{
                     element.setAttribute(key, attrs[key])
