@@ -103,7 +103,7 @@
 
             $('#itemDisplay').DocObject({
                 binds: {
-                    display: ({ active }, attrs, children) =>`<h2>${children} ${active.item}</h2>`
+                    display: ({ active }, attrs, children) =>`<h2>${children} ${active ? active.item : ''}</h2>`
                 }
             })
 
