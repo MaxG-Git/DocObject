@@ -1,4 +1,4 @@
-import { DocObjectDomBind, DocObjectBind, DocObjectBindGen } from './docbind'
+import { DocObjectDomBind, DocObjectBind, DocObjectBindGen, DocObjectBindAttribute } from './docbind'
 import { DocObjectRender } from './docrender'
 import  DocGen  from './docgen'
 import runError, { 
@@ -105,6 +105,10 @@ export class DocObject {
     } = {}) : DocObjectOptions {
         return  { elements, values, render, binds, bindAttr, bindInAttr, isJQuery, connections, removeOnload } 
     }
+
+    static extractAttributes(element : DocObjectDomBind){
+        return [...element.attributes].reduce( (a,c)=>{return {...a, [(c.name).replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); })]:c.value} }, {} )
+    }
     
     defaultRunBindOptions({
         root,
@@ -128,7 +132,9 @@ export class DocObject {
     _querySelect : (selector:string)=> NodeList | JQuery;
     _isJQuery : boolean
     _connections : Array<DocObject>
+    attrs : DocObjectBindAttribute
     g : DocGen
+    _this : any = this;
     onLoad: ()=>void
 
     set values(values) {
@@ -185,6 +191,8 @@ export class DocObject {
         //Create Related DocGen
         this.g = new DocGen(this)
 
+        this.attrs = DocObject.extractAttributes( this.root )
+
         //Set Bind Functions
         this.binds = (typeof binds === 'function') ? binds(this.g) : binds ;
 
@@ -193,6 +201,8 @@ export class DocObject {
 
         //Set Bind In Attribute
         this.bindInAttr = bindInAttr;
+
+       
         
         //Set Query Proxy
         this.query = new Proxy({}, {
@@ -228,6 +238,11 @@ export class DocObject {
                 this.runRender({ [prop]: value })
                 this.runConnections({[prop]:value})
                 return true;
+            },
+            get: (target, prop) => {
+                if(typeof target[prop] === 'function')
+                    return target[prop](this.attrs)
+                return target[prop]
             }
         })
 
@@ -258,6 +273,7 @@ export class DocObject {
     static isDobObjectElement(element : DocObjectElement ) : boolean {
         return ( element._DocObject instanceof DocObject  )
     }
+    
 
 
     findOrRegisterBind(DOMelement : DocObjectDomBind) : DocObjectConfig {
@@ -267,7 +283,7 @@ export class DocObject {
             DOMelement._DocObjectConfig = {
                 originalChildren,
                 originalChildrenHTML: DOMelement.innerHTML,
-                originalAttributes: [...DOMelement.attributes].reduce( (a,c)=>{return {...a, [c.name]:c.value} }, {} )
+                originalAttributes: DocObject.extractAttributes(DOMelement)
             }
         }
         return DOMelement._DocObjectConfig
@@ -275,7 +291,7 @@ export class DocObject {
 
     generateBind(element : DocObjectDomBind, bind, bound : DocObjectHTMLLike) : DocObjectDomBind | Node[] {
         const config = element._DocObjectConfig;
-        const nodeArray = DocObject.toNodeArray(typeof bound === 'function' ? bound(this.g) : bound);
+        const nodeArray = DocObject.toNodeArray(typeof bound === 'function' ? (bound.bind(this._this))(this.g) : bound);
         if(this.isBind(element)){
             const firstElement = nodeArray.find(el => el instanceof HTMLElement) as DocObjectDomBind;
             firstElement._DocObjectConfig = config;
@@ -297,23 +313,23 @@ export class DocObject {
         this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root]});
     }
 
-    getBindAction(element : HTMLElement, valueChanges: object) : [string, (replace : Node & NodeList )=> void ] | null {
+    getBindAction(element : HTMLElement, valueChanges: object) : [string, (replace : Node | NodeList | Node[] )=> void ] | null {
         if(this.isBind(element)){
             if(element.getAttribute(this.bindAttr)){
-                return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace, element)]
+                return [element.getAttribute(this.bindAttr), (replace)=>element.parentNode.replaceChild(replace as Node, element)]
             }else if(element.localName === 'd-bind'){
-                return [element.getAttribute('to'), (replace)=>element.parentNode.replaceChild(replace, element)]
+                return [element.getAttribute('to'), (replace)=>element.parentNode.replaceChild(replace as Node, element)]
             } 
         }else if(this.isBindIn(element)){
             return [element.getAttribute(this.bindInAttr), (replace)=>{
                 element.innerHTML = '';
-                for (let node of replace) element.appendChild(node);
+                for (let node of replace as NodeList) element.appendChild(node);
             }]
         }else if(DocObject.isDobObjectElement(element)){
-            if(element === this.root){
+            if(element === this.root ){
                 return ['this',   (replace)=>{
                     element.innerHTML = '';
-                    for (let node of replace) element.appendChild(node);
+                    for (let node of replace as NodeList) element.appendChild(node);
                 }]
             }else{
                 (element as DocObjectElement)._DocObject.runRender(valueChanges)
@@ -343,13 +359,14 @@ export class DocObject {
                                 bindAction(this.runBinds({
                                     root: this.generateBind(  //Wrap Bind Method to prepare bind for document
                                         element,
-                                        bind,
+                                        bind,                        
                                         //Run Bind Method
-                                        this.binds[bind](
+                                        //Extract Bind and Use JavaScript's bind method to set this to DocObject
+                                        (this.binds[bind].bind(this._this))(
                                             this.values, //Pass in updates values
                                             config.originalAttributes, //Pass in original attributes
                                             config.originalChildren, //Pass in original children
-                                            valueChanges
+                                            valueChanges //Changes that triggered render (Including a parent's DocObject value changes)
                                         )
                                     ),
                                     valueChanges

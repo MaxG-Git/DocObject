@@ -39,8 +39,8 @@ if(window.jQuery){
     })(jQuery);
 }
 
-export function obj(root : DocObjectElement | JQuery, options : object) : DocObject{
-    return new DocObject(root, options)
+export function obj(root : DocObjectElement | JQuery, options : object) : DocObject {
+    return new DocObject(root, options);
 }
 
 export function gen() : DocGen {

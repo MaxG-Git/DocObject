@@ -2,12 +2,11 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const src = require('./src')
+
 
 
 app.use(express.json());
 app.use('/examples',  express.static('./examples'))
-app.use('/src', src)
 app.use('/dist', express.static('./dist'))
 console.log(__dirname)
 app.get('/', (req, res)=>{
@@ -22,5 +21,5 @@ io.on('connection', (socket)=>{
 
 
 var server = http.listen(8080, () => {
-    console.log('server is running at http://localhost:', server.address().port);
+    console.log('server is running at http://localhost:' + server.address().port);
   });
