@@ -14,21 +14,54 @@
 
 <body>
 
+    <!-- <d-bind to="bind1">
+        <d-bind to="bind2">
+            <d-bind to="bind3">
+        
+            </d-bind>
+        </d-bind>
+    </d-bind> -->
+   
 
 </body>
 
 
+
+
 <script>
-    Doc.obj(document.body, {
+ 
+    var doc = Doc.obj(document.body, {
         values: {
             message: 'Hello World!',
         },
-        binds: {
-            this: ({message}, attrs, children) => function (g) {
-                return g.h1(this.values.message)
-            },
+        binds : (g) => {
+            return {
+                this : ({message}) => g.div(), 
+            }
         },
     });
+
+
+
+    // var obj = Doc.obj(document.body, {
+    //     values: {
+    //         message: 'Hello World!',
+    //     },
+    //     binds: {
+    //         bind1:(_, __, c)=> g => {
+    //             console.log('Bind 1');
+    //             return g.div(c)
+    //         },
+    //         bind2:(_, __, c)=> g => {
+    //             console.log('Bind 2');
+    //             return g.div(c)
+    //         },
+    //         bind3:()=> g => {
+    //             console.log('Bind 3');
+    //             return g.div('done')
+    //         }
+    //     },
+    // });
 
 </script>
 

@@ -45,6 +45,7 @@ interface DocObjectRunBindOptions {
     root : any;
     valueChanges: object;
     additionalHosts? : Array<HTMLElement>
+    memoizedElements :  Array<DocObjectElement|DocObjectDomBind>
 }
 
 // export interface DocObjectElement extends HTMLElement {
@@ -55,9 +56,6 @@ export class DocObjectElement extends HTMLElement {
     _DocObject? : DocObject
     constructor() {
         super()
-        if(!DocObject.isDobObjectElement(this)){
-            this._DocObject = new DocObject(this, {})
-        } 
     }
 }
 
@@ -66,7 +64,7 @@ interface DocObjectElements {
 }
 
 export interface DocObjectConfig {
-    originalChildren: Array<Node>;
+    originalChildren: Array<Node> | JQuery<ChildNode[]>;
     originalChildrenHTML: string;
     originalAttributes: {[key:string] : string};
 }
@@ -113,9 +111,10 @@ export class DocObject {
     defaultRunBindOptions({
         root,
         valueChanges,
-        additionalHosts = []
+        additionalHosts = [],
+        memoizedElements = []
     } : DocObjectRunBindOptions ) : DocObjectRunBindOptions {
-        return {root, valueChanges, additionalHosts}
+        return {root, valueChanges, additionalHosts, memoizedElements}
     }
 
 
@@ -145,7 +144,7 @@ export class DocObject {
     }
     
     
-    constructor(root : DocObjectElement | JQuery, options : object) {
+    constructor(root : DocObjectElement | JQuery | string, options : object) {
         //Add Default Parameters to options
         const { elements, values, render, binds, bindAttr, bindInAttr, isJQuery, connections, removeOnload } : DocObjectOptions = DocObject.defaultParams(options)
         
@@ -202,8 +201,6 @@ export class DocObject {
         //Set Bind In Attribute
         this.bindInAttr = bindInAttr;
 
-       
-        
         //Set Query Proxy
         this.query = new Proxy({}, {
             get: (target, prop ) => {
@@ -278,7 +275,7 @@ export class DocObject {
 
     findOrRegisterBind(DOMelement : DocObjectDomBind) : DocObjectConfig {
         if(DOMelement._DocObjectConfig === undefined){
-            let originalChildren = [...DOMelement.childNodes]
+            let originalChildren = this._isJQuery ? $([...DOMelement.childNodes]) : [...DOMelement.childNodes]
             originalChildren.toString = ()=> DOMelement.innerHTML
             DOMelement._DocObjectConfig = {
                 originalChildren,
@@ -304,13 +301,12 @@ export class DocObject {
     }
 
     
-
     runRender(valueChanges = {}) : void {
         this.render.filter(ren => (ren.dep && Array.isArray(ren.dep) && ren.dep.some((depp) => (depp in valueChanges))) || (ren.dep === undefined)).forEach(ren => {
             if (ren.clean) ren.clean({ ...this.values, ...valueChanges }, this.values)
             ren.action({ ...this.values, ...valueChanges }, this.values)
         })
-        this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root]});
+        this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root], memoizedElements:[] });
     }
 
     getBindAction(element : HTMLElement, valueChanges: object) : [string, (replace : Node | NodeList | Node[] )=> void ] | null {
@@ -339,12 +335,18 @@ export class DocObject {
     }
     querySelectorAll = (selector : string) => this.root.querySelectorAll(selector)
     runBinds(params: DocObjectRunBindOptions) {
-        const { root, valueChanges, additionalHosts } = this.defaultRunBindOptions(params);
+        const { root, valueChanges, additionalHosts, memoizedElements } = this.defaultRunBindOptions(params);
         (Array.isArray(root) ? root : [root])
             .filter(rt => rt && rt instanceof HTMLElement)
             .forEach((rt) => {
                 [...(rt.querySelectorAll(`[${this.bindAttr}], [${this.bindInAttr}], d-bind[to], [doc-object]`)), ...additionalHosts]
                     .forEach(element => {
+                        
+                        //Skip if this node has been bound down the recursion cycle
+                        if(memoizedElements.some(e => (element as HTMLElement).isSameNode(e))) return
+                        
+                        //Add to memoizedElements to be skipped in the future
+                        memoizedElements.push(element)
 
                         const bindInstructions = this.getBindAction(element, valueChanges)
                         if (bindInstructions) {
@@ -354,23 +356,25 @@ export class DocObject {
                             if (bind in this.binds) {
                                 //Get Or register Bind Tag's Config
                                 const config = this.findOrRegisterBind(element)
-
+                                
                                 //Insert HTML
-                                bindAction(this.runBinds({
-                                    root: this.generateBind(  //Wrap Bind Method to prepare bind for document
-                                        element,
-                                        bind,                        
-                                        //Run Bind Method
-                                        //Extract Bind and Use JavaScript's bind method to set this to DocObject
-                                        (this.binds[bind].bind(this._this))(
-                                            this.values, //Pass in updates values
-                                            config.originalAttributes, //Pass in original attributes
-                                            config.originalChildren, //Pass in original children
-                                            valueChanges //Changes that triggered render (Including a parent's DocObject value changes)
-                                        )
-                                    ),
-                                    valueChanges
-                                })
+                                bindAction(
+                                    this.runBinds({
+                                        root: this.generateBind(  //Wrap Bind Method to prepare bind for document
+                                            element,
+                                            bind,                        
+                                            //Run Bind Method
+                                            //Extract Bind and Use JavaScript's bind method to set this to DocObject
+                                            (this.binds[bind].bind(this._this))(
+                                                this.values, //Pass in updates values
+                                                config.originalAttributes, //Pass in original attributes
+                                                config.originalChildren, //Pass in original children
+                                                valueChanges //Changes that triggered render (Including a parent's DocObject value changes)
+                                            )
+                                        ),
+                                        valueChanges,
+                                        memoizedElements
+                                    })
                                 );
                             }
                         }

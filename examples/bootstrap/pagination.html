@@ -26,7 +26,7 @@
 
 <body>
 
-    <div id="pagination" max="10" offset="0" total="200" show-pad>
+    <div id="pagination" max="10" offset="0" total="200" max-pages="5" show-pad>
     </div>
 
 </body>
@@ -79,9 +79,10 @@
                     ]
                 }
                 return g.nav(
-                    g.ul(pages.map(page =>
-                        g.PageItem(page.display, { active: currentPage === page.page, page })
-                    ), { class: 'pagination' }
+                            g.ul(
+                                pages.map(page =>
+                                    g.PageItem(page.display, { active: currentPage === page.page, page })
+                        ), { class: 'pagination' }
                     )
                 )
             }
