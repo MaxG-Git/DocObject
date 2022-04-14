@@ -102,7 +102,7 @@ var obj = Doc.obj(document.body, {
     ],
     isJQuery: false //Override jQuery Mode
     bindAttr:'d-bind' //Attribute used for bind tags (not including shipped tag)
-    bindInAttr: 'd-bind' //Attribute used for bind-in (not including shipped tag)
+    bindInAttr: 'd-bind-in' //Attribute used for bind-in (not including shipped tag)
     removeOnload: false //Removes onLoad event to run render/binds on document load
 });
 ```
