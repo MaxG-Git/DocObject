@@ -30,7 +30,7 @@ DocObject comes with **plug-and-play jQuery support** but also **may be used wit
 - [DocGen](https://github.com/MaxG-Git/DocObject/wiki/DocGen) - DocObject's Bundled HTML Generator
 - Values - *Documentation In Progress*
 - Render *Documentation In Progress*
-- [Elements](https://github.com/MaxG-Git/DocObject/wiki/Elements) - DocObject's Bundled HTML Generator
+- [Elements](https://github.com/MaxG-Git/DocObject/wiki/Elements) - *Documentation In Progress*
 
 
 
