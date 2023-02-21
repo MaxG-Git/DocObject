@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>DocObject jQuery Quick Start</title>
+    <!-- DocObject Script Here -->
+    <script src="/dist/docobject.bundle.js"></script>
+
+</head>
+<body>
+<h1>Outside</h1>
+
+
+<div id="myObject">
+   
+   
+
+</div>
+
+
+</body>
+<script>
+    
+ const doc = Doc.obj(document.querySelector('#myObject'), {
+    
+    values : {
+        message:'Hello',
+        emoji:'😀',
+        list:[1,2,3]
+    },
+
+
+    
+    binds : {
+       this: ( {message, list}, attr, children ) => g => g.ul(
+        list.map(num => g.listItem(num) ), { 
+         custom:'test',
+         style: {color:'red'}
+       }),
+
+      listItem:(values, attrs, children)=> g => g.li(children, {onclick:()=>alert(children[0].data)})
+    }
+ })
+
+
+
+</script>
+</html>

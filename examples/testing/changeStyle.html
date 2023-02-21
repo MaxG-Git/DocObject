@@ -1,0 +1,33 @@
+   <!-- DocObject Script Here -->
+   <script src="/dist/docobject.bundle.js"></script>
+
+<body>
+
+
+    <div d-bind="popover">
+
+    </div>
+
+
+</body>
+
+
+
+
+
+
+
+
+<script>
+var popOverHandler = Doc.obj(document.body, {
+    values:{
+        color:'red'
+       
+    },
+    binds : function(g) {
+        return {
+            popover: ({color}) => g.span('Some Logic', {style: {color:color}})
+        }    
+    },
+});
+</script>

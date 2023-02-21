@@ -34,7 +34,13 @@ export default class DocGen {
                 }
             }
             DocObject.toNodeArray(inner).forEach(ine => {
-                element.appendChild(ine)
+                
+                if(ine.parentElement && ine.parentElement.nodeName === 'D-BIND'){
+                    element.appendChild(ine.cloneNode(true))
+                }
+                else{
+                    element.appendChild(ine)
+                }
             })
             return element;
         }

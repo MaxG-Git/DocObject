@@ -5,9 +5,11 @@
   </a>
 
   <h3 align="center">DocObject</h3>
-    <br />
-    <a href="https://github.com/MaxG-Git/DocObject/wiki"><strong>Explore the docs »</strong></a>
-    <br />
+    <div align="center">
+
+[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](/docs/ "Go to project documentation")
+
+</div>
   <p align="center">
     A Lightweight jQuery Plugin to structure page updates
     <br />
@@ -63,11 +65,9 @@ var obj = Doc.obj(document.body, {
     values: {
         message: 'Hello World!',
     },
-    binds : (g) => {
-        return {
-            this : ({message}) => g.h1(message), 
-        }
-    },
+    binds : {
+        this : ({message}) => g => g.h1(message),
+    }
 });
 ```
 
@@ -78,11 +78,9 @@ var obj = $(document.body).DocObject({
     values: {
         message: 'Hello World!',
     },
-    binds : (g) => {
-        return {
-            this : ({message}) => g.h1(message),
-        }
-    },
+    binds : {
+        this : ({message}) => g => g.h1(message),
+    }
 });
 ```
 
@@ -100,9 +98,9 @@ var obj = Doc.obj(document.body, {
     },
     render: [
     ],
-    isJQuery: false //Override jQuery Mode
-    bindAttr:'d-bind' //Attribute used for bind tags (not including shipped tag)
-    bindInAttr: 'd-bind-in' //Attribute used for bind-in (not including shipped tag)
+    isJQuery: false, //Override jQuery Mode
+    bindAttr:'d-bind', //Attribute used for bind tags (not including shipped tag)
+    bindInAttr: 'd-bind-in', //Attribute used for bind-in (not including shipped tag)
     removeOnload: false //Removes onLoad event to run render/binds on document load
 });
 ```

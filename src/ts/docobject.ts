@@ -252,11 +252,7 @@ export class DocObject {
         }
 
         if(!removeOnload){
-            if(this._isJQuery){
-                $(this.onLoad)
-            }else{
-                window.onload = this.onLoad
-            }
+            window.onload = this.onLoad
         }
             
     }
@@ -276,13 +272,18 @@ export class DocObject {
     findOrRegisterBind(DOMelement : DocObjectDomBind) : DocObjectConfig {
         if(DOMelement._DocObjectConfig === undefined){
             let originalChildren = this._isJQuery ? $([...DOMelement.childNodes]) : [...DOMelement.childNodes]
-            originalChildren.toString = ()=> DOMelement.innerHTML
+            
+            originalChildren.toString = ()=> {
+                console.log('Now')
+                return DOMelement.innerHTML;
+            }
             DOMelement._DocObjectConfig = {
                 originalChildren,
                 originalChildrenHTML: DOMelement.innerHTML,
                 originalAttributes: DocObject.extractAttributes(DOMelement)
             }
         }
+       
         return DOMelement._DocObjectConfig
     }
 
@@ -307,6 +308,7 @@ export class DocObject {
             ren.action({ ...this.values, ...valueChanges }, this.values)
         })
         this.runBinds({root:this.root, valueChanges, additionalHosts:[this.root], memoizedElements:[] });
+        
     }
 
     getBindAction(element : HTMLElement, valueChanges: object) : [string, (replace : Node | NodeList | Node[] )=> void ] | null {
@@ -344,9 +346,10 @@ export class DocObject {
                         
                         //Skip if this node has been bound down the recursion cycle
                         if(memoizedElements.some(e => (element as HTMLElement).isSameNode(e))) return
-                        
+
                         //Add to memoizedElements to be skipped in the future
                         memoizedElements.push(element)
+                        //console.log(memoizedElements)
 
                         const bindInstructions = this.getBindAction(element, valueChanges)
                         if (bindInstructions) {

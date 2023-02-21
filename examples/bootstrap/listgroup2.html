@@ -27,11 +27,7 @@
     <script src="/dist/docobject.bundle.js"></script>
 </head>
 <style>
-    d-bind {
-        display: none;
-    }
-
-
+    
     html {
         width: 100%;
         height: 100%;
@@ -57,48 +53,54 @@
 
 
 <body>
-    <d-bind to="inner">Test</d-bind>
+   
+
+    <div style="margin-top: 50px;">
+       
+        <d-bind to="ListGroup">
+            <d-bind key="a" as="button" to="ListItem"><span>The current link item</span></d-bind>
+            <d-bind key="b" to="ListItem">A second link item </d-bind>
+            <d-bind key="c" to="ListItem">A third link item</d-bind>
+            <d-bind key="e" to="ListItem">A fourth link item</d-bind>
+            <d-bind key="f" to="ListItem">A fifth link item</d-bind>
+            <d-bind key="g" to="ListItem">A Sixth link item</d-bind>
+        </d-bind>
+
+    </div>
+    
+
+    
 </body>
 
 
 
+
+
+
+
 <script>
-    var cen = $('body').DocObject({
-            values: {
-                greet: true,
-            },
-            binds: {
+    const doc = $('body').DocObject({
+        //isJQuery:false,
+        values: {
+            active: null,
+        },
+        binds: {
+            ListGroup:(a,b,children) => g => g.ul(children, {class:'list-group'}),
+            
+            ListItem: ({ active }, { href, key }, children) => g => {
+                return g.a(children, {
+                    class:`list-group-item list-group-item-action ${key == active ? 'active' : ''}`,
+                    onclick:()=>setActive(key)
+                }
+            )},
 
-                btn: (values, attrs, children) => (gen) => gen.button(
-                    children, {
-                    onclick:changeMe,
-                    type:'button'
-                }),
 
+        }
+    })
 
-                inner: ({ greet }, attrs, children) => (gen) => gen.div(
-                        gen.div(
-                            [
-                                gen.h1(greet ? 'Hello' : 'Bye'),
-                                gen.btn('Change Message'),
-                            ], 
-                        { style: { margin: 'auto' } 
-                    }),
-                    {
-                        style: {
-                            display: 'flex',
-                            justifyContent: 'center'
-                    }
-                })
-                
-            }
-        })
-
-function changeMe(){
-    console.log('test')
-   cen.values.greet = !(cen.values.greet)
-}
-
+    function setActive(key) {
+        doc.values.active = key
+    }
 
 </script>
 
