@@ -1,0 +1,94 @@
+<script src="/dist/docobject.bundle.js"></script>
+<style>
+    #test{
+        position:absolute;
+        top: 200px;
+        left: 200px;
+        width:100px;
+        height: 100px;
+        border-radius:100%;
+        cursor: grab;
+        background: repeating-linear-gradient(
+            0deg,
+            #606dbc,
+            #606dbc 10px,
+            #465298 10px,
+            #465298 20px
+        );
+}
+
+</style>
+
+
+<body>
+
+</body>
+
+<script>
+var obj = Doc.obj(document.body, {
+    values: {
+       steps:0,
+       currentStep:0,
+       angle:0,
+       isDrag:false,
+       
+    },
+    binds : (g) => {
+        return {
+            this : ({steps, currentStep}) => [
+                g.div([
+                    g.label('Steps: '),
+                    g.input(null,{id:'steps', type:'number', min:0, max:360, value:steps, oninput:setSteps})
+                ]), 
+                steps ?
+                g.div([
+                    g.label('Current Step: '),
+                    g.span(currentStep)
+                ])
+                : 
+                [],
+                g.movableBox()
+            ],
+            movableBox : ({angle}) => g.div([], { 
+              style: {transform: `rotate(${angle}deg)`},
+              id:'test',           
+              onmousedown:handleMouseDown, 
+              onmouseup:handleMouseUp, 
+              onmousemove:handleMouseDrag
+            })
+        }
+    },
+});
+  
+function setSteps(event){
+    console.log(event.target)
+    Doc.fixInput(obj.query.steps, _=>{
+        obj.values.steps = parseInt(event.target.value)
+    })
+}
+
+function handleMouseDown(event){
+  obj.values.isDrag = true
+}
+function handleMouseUp(event){
+  obj.values.isDrag = false
+}
+
+function handleMouseDrag(event){
+  if(!obj.values.isDrag) return;
+    const dialRect = event.target.getBoundingClientRect();
+    const dialCenterX = dialRect.left + dialRect.width / 2;
+    const dialCenterY = dialRect.top + dialRect.height / 2;
+    const dx = event.clientX - dialCenterX;
+    const dy = event.clientY - dialCenterY;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    if(obj.values.steps){
+        const stepSize = 360 / obj.values.steps;
+        const stepIndex = Math.round(angle / stepSize);
+         obj.values.angle = (stepSize * stepIndex)
+         obj.values.currentStep =  (((stepIndex % obj.values.steps) + obj.values.steps) % obj.values.steps) + 1
+    }else{
+        obj.values.angle = angle
+    }
+}
+</script>

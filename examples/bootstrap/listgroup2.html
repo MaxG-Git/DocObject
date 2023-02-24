@@ -79,29 +79,34 @@
 
 
 <script>
-    const doc = $('body').DocObject({
-        //isJQuery:false,
-        values: {
-            active: null,
-        },
-        binds: {
-            ListGroup:(a,b,children) => g => g.ul(children, {class:'list-group'}),
-            
-            ListItem: ({ active }, { href, key }, children) => g => {
-                return g.a(children, {
-                    class:`list-group-item list-group-item-action ${key == active ? 'active' : ''}`,
-                    onclick:()=>setActive(key)
-                }
-            )},
 
 
-        }
-    })
+/* Bind Functions */
+const ListGroup = (_,__,children) => g => g.ul(children, {class:'list-group'});
 
-    function setActive(key) {
-        doc.values.active = key
+const ListItem = ({ active }, { href, key }, children) => g => {
+    return g.a(children, {
+        class:`list-group-item list-group-item-action ${key == active ? 'active' : ''}`,
+        onclick:()=>setActive(key)
     }
+)}
 
+
+/* Implementation */
+const doc = $('body').DocObject({
+    //isJQuery:false,
+    values: {
+        active: null,
+    },
+    binds: {
+        ListGroup,
+        ListItem
+    }
+})
+
+function setActive(key) {
+    doc.values.active = key
+}
 </script>
 
 </html>

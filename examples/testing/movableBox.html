@@ -1,0 +1,55 @@
+<style>
+    .md{
+  position:absolute;
+  width:100px;
+  height: 100px;
+  background-color: red;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+</style>
+
+<script src="/dist/docobject.bundle.js"></script>
+
+<body>
+
+</body>
+
+<script>
+
+var obj = Doc.obj(document.body, {
+    values: {
+        x : 50,
+        y : 50,
+       isDrag:false,
+       
+    },
+    binds : (g) => {
+        return {
+            this : () => [g.movableBox()],
+            movableBox : ({x, y}) => g.div([g.p(`x: ${x}`), g.p(`y: ${y}`)], { 
+                style: {top:y+'px', left:x+'px'}, 
+                class:'md',
+                onmousedown:handleMouseDown, 
+                onmouseup:handleMouseUp, 
+                onmousemove:handleMouseDrag})
+            
+      
+        }
+    },
+});
+  
+
+function handleMouseDown(event){
+  obj.values.isDrag = true
+}
+function handleMouseUp(event){
+  obj.values.isDrag = false
+}
+
+function handleMouseDrag(event){
+  if(!obj.values.isDrag) return;
+  obj.values.x = event.clientX;
+  obj.values.y = event.clientY;
+}
+</script>

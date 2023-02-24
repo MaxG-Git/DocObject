@@ -69,6 +69,13 @@
                 { name: "Quick Start (jQuery)", href: 'templates/quickStartjQuery.html' },
             ],
 
+            testing: [
+                { name: "Change Style", href: 'testing/changeStyle.html' },
+                { name: "Movable Box", href: 'testing/movableBox.html' },
+                { name: "Spin-able Dial", href: 'testing/spinableBox.html' },
+               
+            ],
+
 
         },
         binds: {
@@ -78,7 +85,7 @@
             </div>
             `,
 
-            main: ({ simple, bootstrap, docgen, template }) =>/*HTML*/`
+            main: ({ simple, bootstrap, docgen, template, testing }) =>/*HTML*/`
             <div style="margin:2rem">
                 <div class="jumbotron">
                     <h1 class="display-4">Welcome to DocObject</h1>
@@ -87,7 +94,14 @@
                     <hr class="my-4">
                     
                     <div style="display: flex; gap:2rem;">
-                        <d-bind to="card" title="See Some Simple Examples of DocObject:">
+                    
+                    <d-bind to="card" title="Templates">
+                        <ul>
+                            ${template.map(makeLI).join('\n')}
+                        </ul>
+                    </d-bind>
+                    
+                    <d-bind to="card" title="See Some Simple Examples of DocObject:">
                         <ul>
                             ${simple.map(makeLI).join('\n')}
                         </ul>
@@ -105,9 +119,11 @@
                         </ul>
                     </d-bind>
 
-                    <d-bind to="card" title="DocGen Examples">
+                   
+
+                    <d-bind to="card" title="Testing">
                         <ul>
-                            ${template.map(makeLI).join('\n')}
+                            ${testing.map(makeLI).join('\n')}
                         </ul>
                     </d-bind>
 

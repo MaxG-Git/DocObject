@@ -8,6 +8,9 @@
 
     </div>
 
+    <div d-bind="bootbox">
+
+    </div>
 
 </body>
 
@@ -26,7 +29,8 @@ var popOverHandler = Doc.obj(document.body, {
     },
     binds : function(g) {
         return {
-            popover: ({color}) => g.span('Some Logic', {style: {color:color}})
+            popover: ({color}) => g.span('Some Logic', {style: {color:color}}),
+           
         }    
     },
 });

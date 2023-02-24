@@ -274,7 +274,6 @@ export class DocObject {
             let originalChildren = this._isJQuery ? $([...DOMelement.childNodes]) : [...DOMelement.childNodes]
             
             originalChildren.toString = ()=> {
-                console.log('Now')
                 return DOMelement.innerHTML;
             }
             DOMelement._DocObjectConfig = {
@@ -349,7 +348,6 @@ export class DocObject {
 
                         //Add to memoizedElements to be skipped in the future
                         memoizedElements.push(element)
-                        //console.log(memoizedElements)
 
                         const bindInstructions = this.getBindAction(element, valueChanges)
                         if (bindInstructions) {
@@ -399,21 +397,3 @@ export class DocObject {
         return this;
     }
 }
-
-
-
-/*
-var doc = new DocObject({
-    values: {
-    },
-    elements:{
-
-    },
-    binds:{
-
-    },
-    render: [
-
-    ]
-}); $(doc.onLoad)
-*/
