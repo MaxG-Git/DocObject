@@ -3,12 +3,12 @@ import { DocObjectBindAttribute } from './docbind'
 
 export default class DocGen {
     
-    obj ? : DocObject 
+    [key : string]: DocObject | ((inner : DocObjectHTMLLike | Array<string|Node> , attrs : DocObjectBindAttribute) => any) | any;
+    obj : DocObject 
+
     
     constructor(obj? : DocObject){
-        
         this.obj = obj
-
         return new Proxy(this, {
             get:(target, prop ) => {
                return this.Gen(prop as string)
@@ -18,7 +18,7 @@ export default class DocGen {
     Gen(prop : string){
         return (inner : DocObjectHTMLLike | Array<string|Node> = [] , attrs : DocObjectBindAttribute) => {
             if(this.obj && prop in this.obj.binds){
-                const bound = this.obj.binds[prop](this.obj.values, attrs, DocObject.toNodeArray(inner), this.obj.values)
+                const bound = this.obj.binds[prop].bind(this.obj)(this.obj.values, attrs, DocObject.toNodeArray(inner), this.obj.values)
                 return typeof bound === 'function' ? bound(this.obj.g) : bound;
             }
             let element = document.createElement(prop)
@@ -46,16 +46,3 @@ export default class DocGen {
         }
     }
 }
-
-function curry(f) {
-
-    return function(a) {
-        
-      return function(b) {
-        
-        
-        return f(a, b);
-      };
-    };
-
-  }
