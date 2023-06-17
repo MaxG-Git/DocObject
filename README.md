@@ -7,7 +7,7 @@
   <h3 align="center">DocObject</h3>
     <div align="center">
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://github.com/MaxG-Git/DocObject/ "Go to project documentation")
+[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://github.com/MaxG-Git/DocObject/wiki/ "Go to project documentation")
 
 </div>
   <p align="center">
