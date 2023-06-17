@@ -24,7 +24,9 @@
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
     <!-- DocObject -->
-    <script src="/dist/docobject.bundle.js"></script>
+    
+    <script src="/dist/docobject-main.bundle.js"></script>
+    <script src="/dist/docobject-components.bundle.js"></script>
 </head>
 <style>
     
@@ -53,81 +55,62 @@
 
 
 <body>
-    <div id="center">
+   
 
-        <div id="itemDisplay" style="margin-bottom: 4rem;">
-            <d-bind to="display">Item:</d-bind>
-        </div>
-
-
-        <div class="list-group">
-            <d-bind key="a" to="item">The current link item</d-bind>
-            <d-bind key="b" to="item">A second link item </d-bind>
-            <d-bind key="c" to="item">A third link item</d-bind>
-            <d-bind key="e" to="item">A fourth link item</d-bind>
-            <d-bind key="f" to="item">A fifth link item</d-bind>
-        </div>
+    <div style="margin-top: 50px;">
+       
+        <d-bind to="ListGroup">
+            <d-bind key="a" as="button" to="ListItem"><span>The current link item</span></d-bind>
+            <d-bind key="b" to="ListItem">A second link item </d-bind>
+            <d-bind key="c" to="ListItem">A third link item</d-bind>
+            <d-bind key="e" to="ListItem">A fourth link item</d-bind>
+            <d-bind key="f" to="ListItem">A fifth link item</d-bind>
+            <d-bind key="g" to="ListItem">A Sixth link item</d-bind>
+        </d-bind>
 
     </div>
+    
+
+    
 </body>
 
-<d-bind key="a" to="item">The current link item</d-bind>
+
+
+
 
 
 
 <script>
 
 
+/* Bind Functions */
+// const ListGroup = (_,__,children) => g => g.ul(children, {class:'list-group'});
+
+// function ListItem({ active }, { href, key }, children){
+//     return g => {
+//     return g.a(children, {
+//         class:`list-group-item list-group-item-action ${key == active ? 'active' : ''}`,
+//         onclick:()=>{
+//             this.values.active = key
+//         }
+//     }
+// )}
+// } 
+
+const { ListGroup, ListItem } = DocBinds.Bootstrap
 
 
-    const listGroup = $('.list-group').DocObject({
-        values: {
-            active: { 
-                key:null,
-                item:''
-            },
-            value: null,
-        },
-        binds: {
-            item: ({ active }, { href, key }, children) => /*HTML*/`
-        <a 
-        ${href ? 'href="' + href + '"' : ''} 
-        class="list-group-item list-group-item-action ${key == active.key ? 'active' : ''}"
-        onClick="setActive(this)"
-        >
-            ${children}
-        </a>`
-        },
-        connections: [
-
-
-            $('#itemDisplay').DocObject({
-                binds: {
-                    display: ({ active }, attrs, children) =>`<h2>${children} ${active ? active.item : ''}</h2>`
-                }
-            })
-
-        ],
-        
-
-
-    })
-
-
-
-
-    function setActive(element) {
-        listGroup.values.active = {
-            key : $(element).attr('key'), 
-            item : $(element).text()
-        }
+/* Implementation */
+const doc = Doc.obj(document.body, {
+    //isJQuery:false,
+    values: {
+        active: null,
+    },
+    binds: {
+        ListGroup,
+        ListItem
     }
-
-
-
-
-
-
+})
 </script>
 
 </html>

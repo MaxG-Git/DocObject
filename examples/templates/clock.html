@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>DocObject jQuery Quick Start</title>
-    
+
     <!-- DocObject Script Here -->
     <script src="https://cdn.jsdelivr.net/gh/MaxG-Git/DocObject/dist/docobject.bundle.min.js"></script>
 
@@ -12,39 +13,25 @@
 
 
 <body>
-    
-    
+
+
 </body>
 
 
 <script>
     var doc = Doc.obj(document.body, {
         values: {
-            clock: new Intl.DateTimeFormat('en', { hour: 'numeric', minute:'numeric', second:'numeric' }).format(new Date()),
         },
-        binds : (g) => {
+        binds: (g) => {
             return {
-                this : ({clock}) => g.h1(clock), 
+                this: ({ clock }) => g.h1(clock),
             }
         },
-        render:[
-            {
-                action:()=>{
-                    setTimeout(()=>{
-                        doc.values.clock = new Intl.DateTimeFormat('en', { hour: 'numeric', minute:'numeric', second:'numeric' }).format(new Date())
-                    }, 1000)
-                },
-                dep:['clock', true]
-            }
-        ]
     });
 
-
-
-    
-
-
-
+    setInterval(() => {
+        doc.values.clock = new Intl.DateTimeFormat('en', { hour: 'numeric', minute: 'numeric', second: 'numeric' }).format(new Date())
+    }, 1000)
 </script>
 
 

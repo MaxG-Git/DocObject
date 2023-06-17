@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <!-- DocObject Script Here -->
-    <script src="/dist/docobject.bundle.js"></script>
+    <script src="/dist/docobject-main.bundle.js"></script>
+    <script src="/dist/docobject-components.bundle.js"></script>
 
     <style>
         body {
@@ -26,78 +27,29 @@
 
 <body>
 
-    <div id="pagination" max="10" offset="0" total="200" max-pages="5" show-pad>
+    <div d-bind="Pagination" id="pagination" offset-name="offset" max="10" offset="0" total="121" max-pages="5" show-pad>
     </div>
 
 </body>
 <script>
 
-    function toPage(pageObject) {
-        console.log(pageObject);
-        obj.values.offset = pageObject.offset
-    }
+    const { Pagination, PageItem } = DocBinds.Bootstrap
 
-
-
-
-    var obj = Doc.obj(document.querySelector('#pagination'), {
+    var obj = Doc.obj(document.body, {
         values: {
-            total: ({total}) => total,
             offset: ({offset}) => offset || '0',
-            max: ({max}) => max || 10,
-            maxPages: ({maxPages}) => maxPages || 5,
-            showPad: (attrs) => 'showPad' in attrs,
         },
-        binds: {
-            //this: _ => g => g.Paginate(),
-            PageItem: (_, { active, page }, children) => g => g.li(
-                g.a(children, { class: 'page-link' }),
-                { class: 'page-item' + (active ? ' active' : ''), onclick: () => toPage(page), style: { cursor: 'pointer' } }
-            ),
-            this:({ max, offset, total, maxPages, zerothIndex, showPad }) => g => {
-                let totalPages = (+total / +max + (+total % +max > 0 ? 1 : 0));
-                let currentPage = Math.floor(((+offset || 1) - (zerothIndex ? 1 : 0)) / +max) + 1;
-                let lowerBound = Math.max(0, currentPage - Math.ceil(+maxPages / 2))
-                let upperBound = Math.min(totalPages, currentPage + Math.floor(+maxPages / 2));
-                upperBound += (lowerBound == 0) ? (+maxPages % upperBound) : 0
-                lowerBound -= (upperBound == totalPages) ? +maxPages - (totalPages % lowerBound) : 0
-                let pages = [...Array(totalPages).keys()].slice(lowerBound, upperBound).map(e => {
-                    return { display: e + 1, page: e + 1, offset: +max * (e) }
-                })
-                if (showPad && lowerBound > 0) {
-                    pages = [
-                        { display: 1, page: 1, offset: 0 },
-                        { display: '...', page: lowerBound, offset: (lowerBound - 1) * +max },
-                        ...pages
-                    ]
-                }
-                if (showPad && upperBound < totalPages) {
-                    pages = [
-                        ...pages,
-                        { display: '...', page: upperBound + 1, offset: (upperBound) * +max },
-                        { display: totalPages, page: totalPages, offset: (totalPages - 1) * +max },
-                    ]
-                }
-                return g.nav(
-                            g.ul(
-                                pages.map(page =>
-                                    g.PageItem(page.display, { active: currentPage === page.page, page })
-                        ), { class: 'pagination' }
-                    )
-                )
+        binds: { 
+            PageItem,
+            Pagination,
+        },
+        render : [
+            {
+                dep: ['offset'],
+                action: ({offset}) => console.log({offset})
             }
-        },
+        ]
     });
-
-    var bod = Doc.obj(document.body, {
-        binds: {
-            this : (_, __, children) => g => children
-        }
-    })
-
-
-
-
 
 
 </script>

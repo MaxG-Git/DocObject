@@ -1,21 +1,6 @@
 <script src="/dist/docobject.bundle.js"></script>
 <style>
-    #test{
-        position:absolute;
-        top: 200px;
-        left: 200px;
-        width:100px;
-        height: 100px;
-        border-radius:100%;
-        cursor: grab;
-        background: repeating-linear-gradient(
-            0deg,
-            #606dbc,
-            #606dbc 10px,
-            #465298 10px,
-            #465298 20px
-        );
-}
+
 
 </style>
 
@@ -50,8 +35,14 @@ var obj = Doc.obj(document.body, {
                 g.movableBox()
             ],
             movableBox : ({angle}) => g.div([], { 
-              style: {transform: `rotate(${angle}deg)`},
-              id:'test',           
+              style: {
+                transform: `rotate(${angle}deg)`,
+                width: '100px',
+                height: '100px',
+                borderRadius: '100%',
+                cursor: 'grab',
+                background: 'repeating-linear-gradient(0deg,#606dbc,#606dbc 10px,#465298 10px,#465298 20px)'
+              },     
               onmousedown:handleMouseDown, 
               onmouseup:handleMouseUp, 
               onmousemove:handleMouseDrag
@@ -75,7 +66,7 @@ function handleMouseUp(event){
 }
 
 function handleMouseDrag(event){
-  if(!obj.values.isDrag) return;
+    if(!obj.values.isDrag) return;
     const dialRect = event.target.getBoundingClientRect();
     const dialCenterX = dialRect.left + dialRect.width / 2;
     const dialCenterY = dialRect.top + dialRect.height / 2;

@@ -1,0 +1,51 @@
+<script src="/dist/docobject-main.bundle.js"></script>
+<script src="/dist/docobject-components.bundle.js"></script>
+
+<style>
+    .arrow-up {
+        top: 0;
+        left: 50%;
+        position: relative;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        transform: translate(-50%, -50%);
+        border-bottom: 5px solid black;
+    }
+</style>
+
+<body>
+
+    <d-bind to="Dial" is-drag-name="audioDragging" steps-name="audioleveltotal" angle-name="angleB"
+        current-step-name="audioLevel">
+        <div class="arrow-up"></div>
+    </d-bind>
+    <d-bind to="steps"></d-bind>
+
+</body>
+
+<script>
+    const { Dial } = DocBinds.Vanilla
+
+    var obj = Doc.obj(document.body, {
+        values: {
+            audioleveltotal: 50
+        },
+        binds: {
+            steps: ({ audioLevel }) => g => g.h1(audioLevel),
+            Dial
+        },
+        render: [
+            {
+                dep: ['audioDragging'],
+                action: ({ audioDragging, audioLevel }) => {
+                    if (!audioDragging) alert(audioLevel)
+                }
+            }
+        ]
+    });
+
+    
+
+</script>

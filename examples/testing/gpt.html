@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+
+    <script src="/dist/docobject.bundle.js"></script>
+</head>
+
+<body>
+    <h2>Register</h2>
+    <form id="register-form">
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  
+    <div id="result">
+      <h3>Registration Result:</h3>
+      <p><d-bind to="usernameResult"></d-bind></p>
+      <p><d-bind to="passwordResult"></d-bind></p>
+    </div>
+  </body>
+  
+  <script>
+    const doc = $(document.body).DocObject({
+      isJQuery: true,
+      values: {
+        username: '',
+        password: '',
+        usernameResult: '',
+        passwordResult: ''
+      },
+      binds: (g) => {
+        return {
+          usernameResult: ({ username }) => {
+            if (username) {
+              return g.p(`Username entered: ${username}`);
+            } else {
+              return g.p('Please enter a username');
+            }
+          },
+          passwordResult: ({ password }) => {
+            if (password) {
+              return g.p(`Password entered: ${password}`);
+            } else {
+              return g.p('Please enter a password');
+            }
+          }
+        }
+      }
+    });
+  
+    const registerForm = document.getElementById('register-form');
+    registerForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      doc.values.username = formData.get('username');
+      doc.values.password = formData.get('password');
+      doc.values.usernameResult = formData.get('username');
+      doc.values.passwordResult = formData.get('password');
+    });
+  </script>
+  

@@ -7,11 +7,11 @@
   <h3 align="center">DocObject</h3>
     <div align="center">
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](/docs/ "Go to project documentation")
+[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](/wiki/ "Go to project documentation")
 
 </div>
   <p align="center">
-    A Lightweight jQuery Plugin to structure page updates
+    A Lightweight (jQuery optional) Plugin to structure page updates
     <br />
   </p>
 </div>
@@ -25,7 +25,6 @@ DocObject comes with **plug-and-play jQuery support** but also **may be used wit
 
 * [JQuery](https://jquery.com)
 
-<br />
 
 ## Documentation
 - [Binds](https://github.com/MaxG-Git/DocObject/wiki/Binds) - DocObject's core for managing DOM updates

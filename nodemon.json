@@ -2,5 +2,5 @@
     "events": {
       "restart": "yarn webpack --mode development"
     },
-    "delay":5000
+    "delay":2000
   }
